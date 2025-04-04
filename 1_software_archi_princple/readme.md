@@ -68,3 +68,18 @@ common model three-tier archi.
 
 ### Microservices solutions:
 
+![alt text](micro_archi.png)
+
+* answers to the micro questions: 
+
+![alt text](micro_archi_solution.png)
+
+* note: Apps should be **Loosely Coupled**
+
+* if you change something in one service, that only service will be built and deployed
+
+![alt text](one_service_deploy.png)
+
+* versioning for each service:
+
+![alt text](each_version.png)
