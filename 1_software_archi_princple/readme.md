@@ -83,3 +83,19 @@ common model three-tier archi.
 * versioning for each service:
 
 ![alt text](each_version.png)
+
+### Communications between services:
+
+#### Communication using API calls (Synchronous Communication => send request and wait for response)
+
+![alt text](micro_http_communication.png)
+
+#### Communication using message broker (Asynchronous - eg: RabbitMQ)
+
+![alt text](micro_msg_broker.png)
+
+#### Communication via Service Mesh (Used with K8S):
+
+![alt text](micro_service_mesh.png)
+
+### Possible Downsides: 
