@@ -48,3 +48,23 @@ common model three-tier archi.
 - to manage the complexity of the highly distributed microservices, we have solutions like containerazition, container orchestration, pipeline automation for CI/CD, asynchronous messaging for message brokers and queus (kafka), performance monitoring (prometheues) to track microservice performance, logging and audit tools that helps track everyhting within the system(datadog).
 
 ![alt text](microservices4.png)
+
+
+## Microservices explained - the What, Why and How?
+
+- resource: https://www.youtube.com/watch?v=rv4LlmLmVWk&ab_channel=TechWorldwithNana
+
+### Monolethic and its downsides:
+
+* drawbacks of monolethic:
+
+![alt text](micro_limits.png)
+
+* higher infra costs in terms of scaling
+
+![alt text](micro_challenges_1.png)
+
+![alt text](micro_challneges_2.png)
+
+### Microservices solutions:
+
