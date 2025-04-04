@@ -102,7 +102,7 @@ common model three-tier archi.
 
 ![alt text](micro_issues.png)
 
-* for example when configuring the communication between the services, a microservice may be down, unhealthy or just not ready and not responding yet, while another service starts sending requests to its API expecting a fullfied response. 
+* for example when configuring the communication between the services, a microservice may be down, unhealthy or just not ready and not responding yet (docker or k8s can solve this, by checking readiness and liveness ), while another service starts sending requests to its API expecting a fullfied response. 
 
 ### Tools to tackle these challenges: 
 
@@ -116,3 +116,34 @@ common model three-tier archi.
 - monitoring
 
 ### CI/CD Pipelines for Microservices:
+
+* how to configure release process with a CI/CD pipeline for microservices.
+* maybe each microservice in CICD???
+
+### Monorepo vs Polyrepo(how code in managed in Microservices Archi):
+
+![alt text](mono_poly.png)
+
+#### Monorepo:
+
+* 1 git repo that contains many projects.
+![alt text](monorepo.png)
+
+* Monorepo issues:
+![alt text](mono_issue.png)
+
+* in most CICD platform, you can only create one pipeline per project, and we are building multiple projects with a single pipeline, that could prompt us to write additional logic in the pipleline code to isolate only the sections that were update, but that's not the best practice. 
+
+#### Polyrepo:
+
+![alt text](polyrepo.png)
+
+* can you something like **Gitlab Groups** to configure projects together.
+
+![alt text](polyrepo2.png)
+
+* as a result, we can have multiple piple for each service
+![alt text](poly_cicd.png)
+
+* poly issues
+![alt text](poly_issues.png)
