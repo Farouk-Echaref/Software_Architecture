@@ -99,3 +99,20 @@ common model three-tier archi.
 ![alt text](micro_service_mesh.png)
 
 ### Possible Downsides: 
+
+![alt text](micro_issues.png)
+
+* for example when configuring the communication between the services, a microservice may be down, unhealthy or just not ready and not responding yet, while another service starts sending requests to its API expecting a fullfied response. 
+
+### Tools to tackle these challenges: 
+
+* we need tools for:
+- IaC (Terraform from Hashicorp)
+- security (Vault for secret management from Hashicorp)
+- orchestration (K8S)
+- containers
+- messaging
+- service mesh (apart from K8S, )
+- monitoring
+
+### CI/CD Pipelines for Microservices:
