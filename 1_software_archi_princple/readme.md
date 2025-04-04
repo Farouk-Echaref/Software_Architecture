@@ -1,5 +1,9 @@
 # Microservices
 
+## Micro simplified :
+
+- resource: https://www.youtube.com/watch?v=lL_j7ilk7rc&ab_channel=5MinutesorLess
+
 - architecture paradigm that address the limitations of legacy application.
 - monolethic => multitier => microservices. 
 
