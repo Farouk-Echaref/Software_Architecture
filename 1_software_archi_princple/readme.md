@@ -107,13 +107,13 @@ common model three-tier archi.
 ### Tools to tackle these challenges: 
 
 * we need tools for:
-- IaC (Terraform from Hashicorp)
-- security (Vault for secret management from Hashicorp)
-- orchestration (K8S)
-- containers
-- messaging
-- service mesh (apart from K8S, )
-- monitoring
+    - IaC (Terraform from Hashicorp)
+    - security (Vault for secret management from Hashicorp)
+    - orchestration (K8S)
+    - containers
+    - messaging
+    - service mesh (apart from K8S, )
+    - monitoring
 
 ### CI/CD Pipelines for Microservices:
 
@@ -147,3 +147,61 @@ common model three-tier archi.
 
 * poly issues
 ![alt text](poly_issues.png)
+
+# API(Application Programming Interface):
+
+![alt text](api.jpg)
+
+## API Definition:
+
+* resource: https://aws.amazon.com/what-is/api/
+* resource: https://www.freecodecamp.org/news/learn-api-fundamentals-and-architecture/
+
+* Mechanism that enable two software components to communicate with eachother using a set of rules and protocols.
+
+* The word Application refers to any software with a distinct function.
+* Interface a contract of service between two applications, this contract define how the two communicate with eachother using requests and responses.
+* Their API documentation contains information on how developers are to structure those requests and responses.
+
+## How Do APIs work: 
+
+* Client (App that sends request) <==> Server (App that sends response)
+
+* four ways an api can work:
+    - SOAP APIs (uses XML).
+    - RPC APIs.
+    - Websocket APIs (Important: Uses JSON Objects to pass data, supports two way communication between client apps and servers. check :https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api-overview.html#:~:text=The%20WebSocket%20API%20invokes%20your,callback%20messages%20to%20connected%20clients.)
+    - REST APIs.
+
+## Types of APIs:
+
+## Types of APIs Architecture:
+
+1. REST APIs.
+2. SOAP APIs.
+3. GraphQL APIs.
+3. gRPC APIs.
+
+### REST API:
+
+![alt text](restapi.png)
+
+* Representational State Transfer is an architectural design that uses HTTP Methods (GET, POST, PUT, DELETE) to perform CRUD Operations (Create, Read, Update, Delete).
+
+#### Key Components:
+
+1. Resources and Endpoints:
+    - Endpoints or entities exposed by the API can include anything (users, products...)
+    - Each Resource is identified by a unique URI.
+
+2. HTTP Methods.
+
+3. Data Representation: 
+    - Use JSON Objects, XML...
+    - API Responds with the requested representation.
+
+4. HTTP Headers and query parameters (used for authentication, content negotiation...).
+
+4. Statelessness and Cacheability. (resource: https://apipark.com/techblog/en/understanding-stateless-vs-cacheable-key-differences-explained/)
+
+
