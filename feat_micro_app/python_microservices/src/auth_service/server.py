@@ -4,6 +4,7 @@ from flask_mysqldb import MySQL
 
 server = Flask(__name__)
 
+# this auth service will have its own mysql database
 # allow our app to connecnt to our db and to query our mysql database
 mysql = MySQL(server)
 
@@ -19,4 +20,5 @@ server.config["MYSQL_PORT"] = os.environ.get("MYSQL_PORT")
 @server.route("/login", methods=["POST"])
 def login(): # function to handle login
     # easily extract credentials from the Authorization header in a request. It works when you're using HTTP Basic Auth
-    auth = request.authorization 
+    auth = request.authorization
+    

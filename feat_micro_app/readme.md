@@ -96,3 +96,6 @@ Using **Postman**:
 - Set username = `admin`, password = `secret`
 
 ---
+
+### Database "auth" for our auth service
+
