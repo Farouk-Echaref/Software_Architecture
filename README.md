@@ -1,4 +1,4 @@
-# application_architect_prep
+# Software Architect Guide
 This role focuses on designing, developing, and maintaining the architecture of software applications to ensure they meet business needs, are scalable, secure, and perform efficiently within a given ecosystem.
 
 # Preparation Guide for Applicative Architect Role
@@ -69,6 +69,4 @@ This role focuses on designing, developing, and maintaining the architecture of 
 - [NestJS Documentation](https://docs.nestjs.com/)
 
 ---
-
-This roadmap will help you align with the **Applicative Architect** role. Let me know if you need a more detailed learning plan! 🚀
 
