@@ -204,4 +204,6 @@ common model three-tier archi.
 
 4. Statelessness and Cacheability. (resource: https://apipark.com/techblog/en/understanding-stateless-vs-cacheable-key-differences-explained/)
 
+### GraphQL APIs:
+
 
