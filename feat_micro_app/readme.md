@@ -99,3 +99,14 @@ Using **Postman**:
 
 ### Database "auth" for our auth service
 
+### Connect to DB and execute a query:
+
+- use mysql.connection which is the active DB connection.
+- using a cursor object (allows to execute SQL queries and retrieve results)
+- A cursor in SQL is a database object used to retrieve and manipulate data row by row, rather than fetching an entire result set at once.
+
+- resources:
+    - https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlconnection-cursor.html
+    - https://flask-mysql.readthedocs.io/en/stable/
+
+### Using JwT tokens (Basic auth and JSON Web Tokens): 
