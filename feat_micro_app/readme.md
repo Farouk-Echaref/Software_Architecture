@@ -109,4 +109,29 @@ Using **Postman**:
     - https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlconnection-cursor.html
     - https://flask-mysql.readthedocs.io/en/stable/
 
+#### why **email=%s**, and not string formatting
+
+- this uses parametrized queries:
+```sql
+SELECT email, password FROM user WHERE email=%s
+```
+
+- then safely passes the value as a tuple:
+```python
+(auth.username,)
+```
+
+- why is this better than doing:
+```python
+f"SELECT ... WHERE email='{auth.username}'"
+```
+
+- Because:
+    * **it's safe against SQL Injection attacks**.
+    * The database driver handles escaping and formatting internally.
+
 ### Using JwT tokens (Basic auth and JSON Web Tokens): 
+
+- resources:
+    - https://dev.to/jaypmedia/jwt-explained-in-4-minutes-with-visuals-g3n
+    - https://stackoverflow.com/questions/37582444/jwt-vs-cookies-for-token-based-authentication
