@@ -150,4 +150,9 @@ f"SELECT ... WHERE email='{auth.username}'"
 
 - this is where the authentication scheme called **Basic Authentication** or **Basic Access Authentication** comes in...
 
-- after success login, we know the user has access, and we return a JWT to the client, which the client will use for subsequent requests to our gateway's upload and download endpoints.
+- after success login (match in the credentials in our db), we know the user has access, and we return a JWT to the client, which the client will use for subsequent requests to our gateway's upload and download endpoints.
+
+- for json web tokens (jwt) look the provided docs.
+- Authentication scheme  bearer: **Authorization: Bearer <token>**
+- encoding and decoding jwt flask resource: 
+    * https://pyjwt.readthedocs.io/en/latest/usage.html#encoding-decoding-tokens-with-hs256
