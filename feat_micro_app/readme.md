@@ -130,8 +130,24 @@ f"SELECT ... WHERE email='{auth.username}'"
     * **it's safe against SQL Injection attacks**.
     * The database driver handles escaping and formatting internally.
 
-### Using JwT tokens (Basic auth and JSON Web Tokens): 
+### Gateway overview and the use of JwT tokens (Basic auth and JSON Web Tokens): 
 
 - resources:
     - https://dev.to/jaypmedia/jwt-explained-in-4-minutes-with-visuals-g3n
     - https://stackoverflow.com/questions/37582444/jwt-vs-cookies-for-token-based-authentication
+    - https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Authentication
+
+
+- Our microservices are going to be running in a k8s cluster, and that cluster internal network is not going to be accessible to or from the outside world.
+
+- our client will be making requests from outside the cluster, with the intention of making use of our distributed system deployed within our private k8s cluster via our system's **Gateway**, so our **Gateway** service is going to be the entrypoint to the overall application, and the gateway service is going to be the service that receives requests from the client, it will be the service that communicates with the necessary internal services to fulfill the requests received from the client.
+
+- Our **Gateway** is going to be also where we define the functionality of our overall application.
+
+- So if our internal services live within an internal network, how to we determine when should allow requests in from the open internet? 
+
+- This is where our auth service comes in, we can give clients access to our application, by creating credentials for them within our auth DB (User Password Combination).
+
+- this is where the authentication scheme called **Basic Authentication** or **Basic Access Authentication** comes in...
+
+- after success login, we know the user has access, and we return a JWT to the client, which the client will use for subsequent requests to our gateway's upload and download endpoints.
