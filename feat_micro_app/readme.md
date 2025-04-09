@@ -170,3 +170,12 @@ f"SELECT ... WHERE email='{auth.username}'"
 - docker push hub_name/auth:tag
 
 ### Manifests for k8s configs
+
+- deployment strategies:
+    * https://www.youtube.com/watch?v=lxc4EXZOOvE
+    * https://medium.com/@muppedaanvesh/rolling-update-recreate-deployment-strategies-in-kubernetes-%EF%B8%8F-327b59f27202
+- configMap and Secret:
+    * https://www.getambassador.io/blog/kubernetes-configurations-secrets-configmaps
+- use of vault:
+    * https://www.vaultproject.io/use-cases/kubernetes
+    * https://developer.hashicorp.com/vault/tutorials/kubernetes/vault-secrets-operator
