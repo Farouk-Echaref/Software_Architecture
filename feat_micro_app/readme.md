@@ -156,3 +156,17 @@ f"SELECT ... WHERE email='{auth.username}'"
 - Authentication scheme  bearer: **Authorization: Bearer <token>**
 - encoding and decoding jwt flask resource: 
     * https://pyjwt.readthedocs.io/en/latest/usage.html#encoding-decoding-tokens-with-hs256
+
+### Build dockerfile
+
+- used of cached layer to optimize the build of docker images (requirements layer before app layer). 
+
+- pip3 freeze > requirements.txt
+- build image
+- use docker scan
+- use of docker hub to store images
+- name the repo auth (for the auth service)
+- docker tag ... (tag the image)
+- docker push hub_name/auth:tag
+
+### Manifests for k8s configs
