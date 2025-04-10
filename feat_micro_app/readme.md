@@ -2,6 +2,9 @@
 
 ![alt text](micro_app.png)
 
+- general resource: 
+    * https://www.youtube.com/watch?v=hmkF77F9TLw&t=4077s
+
 ## Dependencies:
 
 - install k9s
@@ -171,7 +174,9 @@ f"SELECT ... WHERE email='{auth.username}'"
 
 ### Manifests for k8s configs
 
-- deployment strategies:
+- k8s archi and interaction with k8s api.
+- deployment strategies (strategy to use to replace existing pods with new ones):
+    * how to know the metrics of max surge...
     * https://www.youtube.com/watch?v=lxc4EXZOOvE
     * https://medium.com/@muppedaanvesh/rolling-update-recreate-deployment-strategies-in-kubernetes-%EF%B8%8F-327b59f27202
 - configMap and Secret:
@@ -179,3 +184,8 @@ f"SELECT ... WHERE email='{auth.username}'"
 - use of vault:
     * https://www.vaultproject.io/use-cases/kubernetes
     * https://developer.hashicorp.com/vault/tutorials/kubernetes/vault-secrets-operator
+- the manifests when applied will interface with the k8s api, which is the api for our k8s cluster, to create our components (deployment, services...)
+    ```bash
+    kubectl apply -f ./
+    ```
+
