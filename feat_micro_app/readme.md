@@ -322,3 +322,49 @@ f"SELECT ... WHERE email='{auth.username}'"
 ```
 
 ---
+
+## Key Concepts for the architeture :
+
+* Asynchronous and Synchronous Interservice Communication.
+* Strong and Eventual Consistency.
+
+---
+
+### Synchronous Interservice Communication
+
+> **Synchronous communication** occurs when the **calling service waits (blocks)** for a response from the **called service** before proceeding.
+
+- In this model, the **client service is blocked** and **cannot continue** other tasks until it receives a response.
+- This form of communication is **blocking** in nature.
+- In our system, the **API Gateway communicates synchronously with the Auth Service**.
+- For instance, when a user logs in:
+  - The **Gateway** sends an **HTTP POST request** to the **Auth Service**.
+  - The **Gateway is blocked** until the **Auth Service responds** with a **JWT** or an **error**.
+- This creates **tight coupling** between the two services.
+
+**Key Takeaways**:
+- **Blocking call**
+- Gateway <-> Auth Service
+- Tightly coupled interaction
+
+---
+
+#### ASCII Diagram
+
+```
+[ Client ]
+    │
+    ▼
+[ API Gateway ]
+    │  HTTP POST (login)
+    ▼
+[ Auth Service ]
+    │     ▲
+    │     │
+    └─────┘
+   Wait for response
+```
+
+> The API Gateway waits (blocks) here until the Auth Service responds.
+
+---
