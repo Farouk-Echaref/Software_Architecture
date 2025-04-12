@@ -213,3 +213,112 @@ f"SELECT ... WHERE email='{auth.username}'"
 ## RabbitMQ (DIstributed System)
 
 - resource: https://www.youtube.com/watch?v=7rkeORD4jSw
+
+### Video to MP3 Microservice Architecture
+---
+
+#### Flow Description (RabbitMQ)
+
+1. **Client Upload**:
+    - A user uploads a video through the **Client App**.
+    - The request is routed to the **API Gateway** (producer).
+    - The **API Gateway** authenticates the user via the **Auth Service** and stores the video in **MongoDB (Storage DB)**.
+
+2. **Queue Message #1**:
+    - The API Gateway sends a message to **RabbitMQ**, indicating a new video is available for processing.
+
+3. **Video Processing**:
+    - The **Video-to-MP3 Converter Service** consumes the message from RabbitMQ.
+    - It retrieves the video from **MongoDB**, converts it to MP3, and stores the MP3 back in **MongoDB**.
+
+4. **Queue Message #2**:
+    - After conversion, the service pushes a new message to RabbitMQ, stating that the MP3 is ready.
+
+5. **Notification**:
+    - The **Notification Service** consumes the "conversion complete" message.
+    - It sends an email to the user containing the **MP3 ID**.
+
+6. **Download**:
+    - The user sends a request with the **MP3 ID** and **JWT** to the API Gateway.
+    - The **API Gateway** authenticates the user and fetches the MP3 from **MongoDB**, then returns it to the client.
+
+---
+
+#### Components
+
+- **Client**
+- **API Gateway**
+- **Auth Service**
+- **RabbitMQ**
+- **Video to MP3 Service**
+- **Notification Service**
+- **Auth DB**
+- **Storage DB (MongoDB)**
+
+---
+
+#### ASCII Architecture Flow
+
+```
+              ┌────────────┐
+              │   Client   │
+              └────┬───────┘
+                   │
+         Upload Video (JWT + file)
+                   ▼
+           ┌──────────────┐
+           │ API Gateway  │
+           └────┬──┬──────┘
+                │  │
+      Auth Req. │  └─────> Put message on RabbitMQ
+                ▼
+        ┌────────────┐
+        │ Auth Svc   │
+        └────┬───────┘
+             ▼
+       ┌──────────┐
+       │ Auth DB  │
+       └──────────┘
+
+--- Queue Triggered Processing ---
+
+           ┌────────────────────────┐
+           │ Video to MP3 Service   │◄─────────────┐
+           └─────────┬──────────────┘              │
+                     ▼                             │
+              ┌────────────┐                       │
+              │ Storage DB │ (Video & MP3)         │
+              └────┬───────┘                       │
+                   │                               │
+        Convert Video to MP3                       │
+                   ▼                               │
+      Push "conversion done" message ──────────────┘
+
+--- Notification Stage ---
+
+           ┌────────────────────┐
+           │ Notification Svc   │◄─────────────┐
+           └──────────┬─────────┘              │
+                      ▼                        │
+             Email MP3 ID to Client            │
+                                               │
+--- Client Downloads MP3 ----------------------┘
+
+              ┌────────────┐
+              │   Client   │
+              └────┬───────┘
+                   │
+       Request MP3 (JWT + mp3_id)
+                   ▼
+           ┌──────────────┐
+           │ API Gateway  │
+           └────┬─────────┘
+                ▼
+           ┌────────────┐
+           │ Storage DB │
+           └────┬───────┘
+                ▼
+          MP3 file returned
+```
+
+---
