@@ -189,3 +189,27 @@ f"SELECT ... WHERE email='{auth.username}'"
     kubectl apply -f ./
     ```
 
+## Gateway Service:
+
+![alt text](API_GATEWAY.png)
+
+- resource: https://www.youtube.com/watch?v=6ULyxuHKxg8
+- resource: https://www.youtube.com/watch?v=JNmiOw26PGg&t=3s
+
+- an API Gateway is a single point of entry to the clients of an application. it sits between the clients and a collection of backend services for the application. it provides:
+    * Authentication and security policy enforcements.
+    * load balancing and circuit breaking. 
+    * protocol translation and service discovery.
+    * monitoring, logging, analytics and billing.
+    * caching.
+
+## MongoDB and gridFS:
+
+- docs: https://www.mongodb.com/docs/manual/reference/limits/
+- docs: https://www.mongodb.com/docs/manual/core/gridfs/
+- mongoDB used to store mp3 files and videos (BSON docs).
+- gridFS divides files into parts or chunks.
+
+## RabbitMQ (DIstributed System)
+
+- resource: https://www.youtube.com/watch?v=7rkeORD4jSw
