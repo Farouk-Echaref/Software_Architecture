@@ -368,3 +368,48 @@ f"SELECT ... WHERE email='{auth.username}'"
 > The API Gateway waits (blocks) here until the Auth Service responds.
 
 ---
+
+### Asynchronous Interservice Communication
+
+> **Asynchronous communication** allows the calling service to continue its tasks without waiting for a response from the downstream service — this is called **non-blocking** communication.
+
+- In your architecture, this is achieved using a **message queue**.
+- For example:
+  - The **API Gateway** needs to communicate with the **Converter Service**.
+  - If done synchronously, the **Gateway would be blocked**, especially when processing large videos or handling multiple requests.
+- Instead, the **Gateway pushes a message to the queue**, and the **Converter Service consumes it later**.
+- This design means:
+  - The **Gateway and Converter Service are loosely coupled**.
+  - The **Gateway doesn’t wait** for a response — it performs a **"fire-and-forget"** action.
+  - Similarly, once conversion is done, the **Converter Service pushes another message** to the queue for the **Notification Service**, continuing the **asynchronous flow**.
+
+**Key Takeaways**:
+- Non-blocking requests
+- Queue-based decoupling
+- Gateway ↔ Converter ↔ Notification via queue
+- Loose coupling between services
+
+---
+
+#### ASCII Diagram
+
+```
+[ Client ]
+    │
+    ▼
+[ API Gateway ]
+    │
+    ├──► Store video in MongoDB
+    │
+    └──► Push message to Queue ─────► [ Converter Service ]
+                                          │
+                                          ├──► Pull video from MongoDB
+                                          ├──► Convert to MP3
+                                          └──► Push message to Queue ───► [ Notification Service ]
+                                                                                │
+                                                                                └──► Send Email
+```
+
+> Messages are pushed to the queue, and services process them **asynchronously** when they are ready.
+
+---
