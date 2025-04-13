@@ -413,3 +413,6 @@ f"SELECT ... WHERE email='{auth.username}'"
 > Messages are pushed to the queue, and services process them **asynchronously** when they are ready.
 
 ---
+
+### Strong Consistency:
+### Eventual Consistency:
