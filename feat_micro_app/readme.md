@@ -211,7 +211,7 @@ f"SELECT ... WHERE email='{auth.username}'"
 - docs: https://www.mongodb.com/docs/manual/reference/limits/
 - docs: https://www.mongodb.com/docs/manual/core/gridfs/
 - mongoDB used to store mp3 files and videos (BSON docs).
-- gridFS divides files into parts or chunks.
+- gridFS divides files into parts or chunks (handle files larger than 16m by sharding the files).
 
 ## RabbitMQ (DIstributed System)
 
