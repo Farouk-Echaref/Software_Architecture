@@ -193,6 +193,9 @@ f"SELECT ... WHERE email='{auth.username}'"
 
 ![alt text](API_GATEWAY.png)
 
+- use of NGINX as API Gateway:
+    * https://medium.com/@nirmalkumar30/a-simple-guide-to-configure-nginx-as-an-api-gateway-684924cd51d0
+    * https://www.solo.io/topics/nginx/nginx-api-gateway
 - resource: https://www.youtube.com/watch?v=6ULyxuHKxg8
 - resource: https://www.youtube.com/watch?v=JNmiOw26PGg&t=3s
 
