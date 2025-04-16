@@ -14,7 +14,7 @@ def token(request):
         headers={"Authorization": token},
     )
     
-    # response.txt is going to contain the body which will be the access that the bearer of this token has
+    # response.txt is going to contain the body (the body of that token containing the claims, or the decoded token where the body is visible, will be a string) which will be the access that the bearer of this token has
     if response.status_code == 200:
         return response.txt, None
     else:

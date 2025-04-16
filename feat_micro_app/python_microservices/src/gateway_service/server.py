@@ -49,4 +49,13 @@ def login():
 
 @server.route("/upload", methods=["POST"])
 def upload():
+    # access is the decoded token claims as a json string that contains our payload with our claims
     access, err = validate.token(request)
+    
+    # deserialize the Json string to a python object (dictionary)
+    access = json.loads(access)
+    
+    # check the user privileges (admin in the payload), if it's true we'll give the user access to all of the endpoints
+    
+    if access["admin"]: # resolves to true or false
+        # upload logic

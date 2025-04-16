@@ -422,9 +422,36 @@ f"SELECT ... WHERE email='{auth.username}'"
 
 ## Gateway Logic:
 
+- flask routing resources:
+    * https://flask.palletsprojects.com/en/stable/quickstart/
+- auth resources:
+    * https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Authorization
+    * https://beeceptor.com/docs/concepts/authorization-header/
 - **from flask import request**: request is a global proxy provided by Flask that gives you access to the incoming HTTP request data.
 - login route to communicate with auth service after client want to login.
 - **__init__.py** in auth_svc to mark the directory as a package.
 - use of **requests** package to make HTTP request between the gateway and the auth service.
 - for the upload service, we need to make sure the user has a token from the login route so he can have access to upload.
 - as the flow suggests, the client's going to access our internal services or our endpoints by first logging in and getting a JWT and then for all subsequent requests the client is going to have an authorization header containing that JWT which tells our API Gateway that that client has access to the endpoints of our overall application.
+- in the createJWT function, we are encoding a payload that contains our claims:
+```python
+return jwt.encode(
+        {
+            "username": username,
+            "exp": datetime.datetime.now(tz=datetime.timezone.utc)
+            + datetime.timedelta(days=1),
+            "iat": datetime.datetime.now(datetime.timezone.utc),
+            # user is admin or not
+            "admin": authz,
+        },
+        secret,
+        algorithm="HS256",
+    )
+```
+- the token return to the logged in client is going to contain this payload but the payload is going to be encoded, and when that client sends their token in their request and we validate it, we first check if the token exist in the request, and then we are going to decode that token, and when we're decoding the token we're using the same key that we signed the token with this JWT secret, which is how we know that this is a valid token because our auth service is the service that signed the token using this key, and when we decode the token we're using the same key,  so if somebody were to send a token that was signed with a different secret key then of course it wouldn't work.
+- Serialization and Deserialization, and Json manipulation with python:
+    * https://www.baeldung.com/cs/serialization-deserialization
+    * https://hazelcast.com/foundations/distributed-computing/serialization/
+    * https://www.geeksforgeeks.org/serialization-in-java/
+    * https://www.geeksforgeeks.org/json-loads-in-python/
+    * https://docs.python.org/3/library/json.html
