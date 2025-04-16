@@ -419,3 +419,9 @@ f"SELECT ... WHERE email='{auth.username}'"
 
 ### Strong Consistency:
 ### Eventual Consistency:
+
+## Gateway Logic:
+
+- login route to communicate with auth service after client want to login.
+- **__init__.py** in auth_svc to mark the directory as a package.
+- use of **requests** package to make HTTP request between the gateway and the auth service.

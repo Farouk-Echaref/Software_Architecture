@@ -34,3 +34,12 @@ channel = connection.channel()
 
 # Login Route:
 # it's going to communicate with our auth service to log the user in and assign a token to that user
+
+@server.route("/login", methods=["POST"])
+def login():
+    token, err = access.login(request)
+    
+    if not err:
+        return token
+    else:
+        return err
