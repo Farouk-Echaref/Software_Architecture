@@ -43,3 +43,10 @@ def login():
         return token
     else:
         return err
+    
+# Upload route
+# the route to be used to upload our video that we want to convert
+
+@server.route("/upload", methods=["POST"])
+def upload():
+    access, err = validate.token(request)

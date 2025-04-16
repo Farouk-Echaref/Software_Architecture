@@ -422,6 +422,9 @@ f"SELECT ... WHERE email='{auth.username}'"
 
 ## Gateway Logic:
 
+- **from flask import request**: request is a global proxy provided by Flask that gives you access to the incoming HTTP request data.
 - login route to communicate with auth service after client want to login.
 - **__init__.py** in auth_svc to mark the directory as a package.
 - use of **requests** package to make HTTP request between the gateway and the auth service.
+- for the upload service, we need to make sure the user has a token from the login route so he can have access to upload.
+- as the flow suggests, the client's going to access our internal services or our endpoints by first logging in and getting a JWT and then for all subsequent requests the client is going to have an authorization header containing that JWT which tells our API Gateway that that client has access to the endpoints of our overall application.
