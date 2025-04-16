@@ -455,3 +455,9 @@ return jwt.encode(
     * https://www.geeksforgeeks.org/serialization-in-java/
     * https://www.geeksforgeeks.org/json-loads-in-python/
     * https://docs.python.org/3/library/json.html
+- in the upload:
+    * **request.files** is a dictionary-like object containing all uploaded files, refers to the part of an incoming HTTP request that contains uploaded files.
+    * The keys are the names of the file input fields in the HTML form.
+    * The values are the actual uploaded file objects.
+    * resource for file uploads:
+        * https://flask.palletsprojects.com/en/stable/patterns/fileuploads/

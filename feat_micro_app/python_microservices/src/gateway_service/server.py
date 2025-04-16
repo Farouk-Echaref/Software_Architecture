@@ -56,6 +56,19 @@ def upload():
     access = json.loads(access)
     
     # check the user privileges (admin in the payload), if it's true we'll give the user access to all of the endpoints
-    
     if access["admin"]: # resolves to true or false
-        # upload logic
+        # we will only allow the upload of exactly one file per request
+        if len(request.files) > 1 or len(request.files) < 1:
+            return "Exactly 1 file required", 400 # bad request http code
+        
+        # retrieve the file
+        for key, file in request.files.items():
+            # params: the actual file, the gridfs instance for the videos, rabbitmq channel, and the access token
+            err = util.upload(file, fs_videos, channel, access)
+            
+            if err:
+                return err
+        
+        return "Success!", 200
+    else:
+        return "Not Authorized", 401 # Unauthorized http code
