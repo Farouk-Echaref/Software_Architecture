@@ -68,15 +68,7 @@
     * Use autoscaling based on metrics:
         - Scale in/out based on CPU, queue length, or scheduled patterns.
 
-### Partition around limits (to go back
-
-Achieved by:
-
-    Using standard protocols (HTTP)
-
-    Agreeing on data formats for communication
-
- to)
+### Partition around limits (to go back to)
 ### Design for operations ()
 ### Use an identity service (important)
 
@@ -86,13 +78,6 @@ Achieved by:
 
 ## Best Practices:
 ### RESTful API Design:
-
-Achieved by:
-
-    Using standard protocols (HTTP)
-
-    Agreeing on data formats for communication
-
 
 #### Whats RESTful Web API:
 - Web API that follows REST principles, and follows a stateless, loosely coupled interface between client and server.
