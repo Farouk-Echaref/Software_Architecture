@@ -97,3 +97,15 @@
             * Using standard protocols (HTTP)
             - Agreeing on data formats for communication
 
+#### RESTful Web API design concepts:
+
+- **URI (Uniform Resource Identifier)**: each resource should be represented by a unique URI that identifies that resource:
+    * ```http
+        https://api.contoso.com/orders/1
+    ```
+
+- **Resource Representation**: how a resource --identified by its URI-- is encoded and transported over the HTTP protocol in a specific format like JSON.
+a client can make a GET request to the URI identifier `https://api.contoso.com/orders/1` in order to receive the following JSON body:
+    ```json
+        {"orderId":1,"orderValue":99.9,"productId":1,"quantity":1}
+    ```
