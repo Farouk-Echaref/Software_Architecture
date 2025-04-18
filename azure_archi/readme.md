@@ -109,3 +109,145 @@ a client can make a GET request to the URI identifier `https://api.contoso.com/o
     ```json
         {"orderId":1,"orderValue":99.9,"productId":1,"quantity":1}
     ```
+
+- **Uniform Interface**: Use of HTTP methods.
+
+- **Stateless Request Model**: 
+
+- **Hypermedia links**: 
+
+#### Define RESTful web API resource URIs:
+
+- A RESTful web API is organized around resources. To organize your API design around resources, define resource URIs that map to the business entities. When possible, resource URIs should be based on nouns (the resource) and not verbs (the operations on the resource).
+- To create an order, a client sends the order information in an HTTP POST request to the resource URI. The HTTP response to the request indicates whether the order creation is successful. The orders URI could be something like this:
+```http
+https://api.contoso.com/orders // Good
+```
+- avoid using verbs in URIs to represent operations:
+```
+https://api.contoso.com/create-order // Avoid
+```
+- Group related entities into **collections** (e.g., `orders`, `customers`), each with its own **URI**:
+
+- Example collection URI:  
+  `https://api.contoso.com/orders`
+
+- To get a specific item, use its **resource URI** (using HTTP Get request):  
+  `https://api.contoso.com/orders/1`
+
+- Example response (JSON):  
+  ```json
+  {"orderId":1,"orderValue":99.9,"productId":1,"quantity":1}
+  ```
+
+#### RESTful URI Naming Conventions**  
+
+- **Use nouns for resources** (e.g., `/orders`, not `/create-order`). HTTP methods (GET, POST) imply actions.  
+- **Pluralize collection URIs**: Organize hierarchically (e.g., `/customers` for collections, `/customers/5` for individual items).  
+- **Model relationships carefully**: Use paths like `/customers/5/orders` for associations, but avoid deep nesting (e.g., `/customers/1/orders/99/products`). Prefer HATEOAS links in responses for related resources.  
+- **Simplify URIs**: Keep paths intuitive (collection/item/collection). Avoid mirroring complex internal hierarchies.  
+- **Avoid chatty APIs**: Minimize small resources; denormalize data when possible to reduce requests. Balance with payload size.  
+- **Abstract internal structures**: Avoid exposing database schemas. Treat APIs as business entity abstractions, not direct table mappings.  
+- **Handle non-resource operations sparingly**: Use query parameters for edge cases (e.g., `/add?operand1=99&operand2=1`). Keep this approach minimal.  
+
+*Focus on clarity, scalability, and intuitive design over rigid structural rules.*
+
+#### Define RESTful Web API methods:
+##### RESTful API Methods  
+
+**Core HTTP Methods**  
+- **GET**: Retrieve resource(s). Idempotent.  
+  - *Collections*: `/customers` → List all.  
+  - *Single Item*: `/customers/1` → Details.  
+  - Status Codes: `200` (OK), `204` (No Content), `404` (Not Found).  
+
+- **POST**: Create new resource. Server assigns URI.  
+  - Submit to collection URI (e.g., `/customers`).  
+  - Status Codes: `201` (Created), `200`/`204` (non-resource actions), `400` (Bad Request).  
+
+- **PUT**: Replace entire resource (idempotent).  
+  - *Item*: `/customers/1` → Update or create (if supported).  
+  - Status Codes: `200`, `201`, `204`, `409` (Conflict).  
+
+- **PATCH**: Partial update via patch document (e.g., JSON Merge/Patch).  
+  - *Formats*:  
+    - **JSON Merge Patch**: Modify fields (set `null` to delete).  
+    - **JSON Patch** (RFC 6902): Sequence of operations (add, replace, etc.).  
+  - Status Codes: `200`, `400`, `409`, `415` (Unsupported Media Type).  
+
+- **DELETE**: Remove resource. Idempotent.  
+  - Status Codes: `204` (Success), `404` (Not Found).  
+
+**Key Guidelines**  
+- **Idempotence**: PUT/DELETE are safe to retry; POST/PATCH are not.  
+- **Bulk Operations**: Use PUT on collections (e.g., `/customers` for batch updates).  
+- **Avoid Overload**: POST for non-CRUD actions (e.g., `/search`).  
+
+**Example Workflow**  
+1. **Create Customer**: POST `/customers` → Returns `201` with URI `/customers/5`.  
+2. **Update Customer**: PUT `/customers/5` → Full replacement.  
+3. **Partial Update**: PATCH `/customers/5` → Send `{"status": "active"}`.  
+4. **Delete**: DELETE `/customers/5` → `204`.  
+
+*Focus on method semantics, idempotency, and clear status codes for robust APIs.*
+
+##### RESTful Resource MIME Types:  
+
+- **Media Types**: Define data formats (e.g., `application/json`, `application/xml`).  
+- **Content-Type**: Specifies request body format.  
+  ```http
+  POST /orders HTTP/1.1
+  Content-Type: application/json
+  
+  {"Id":1,"Name":"Gizmo","Category":"Widgets","Price":1.99}
+  ```
+  - **Error**: `415 Unsupported Media Type` if the server rejects the format.  
+
+- **Accept**: Requests a specific response format.  
+  ```http
+  GET /orders/2 HTTP/1.1
+  Accept: application/json, application/xml
+  ```
+  - **Error**: `406 Not Acceptable` if the server can’t meet the client’s format.  
+
+**Key Workflow**:  
+1. **Client sends data**: Includes `Content-Type` (e.g., JSON).  
+2. **Server responds**: Uses format matching `Accept` header (defaults to its preferred type if `Accept` is missing).  
+
+*Use headers to ensure clear client-server communication and handle format mismatches gracefully.*
+
+#### Implement Asynchronous Methods:
+
+**Use Case**: Long-running POST/PUT/PATCH/DELETE requests.  
+**Response**: Return `202 Accepted` immediately with a status endpoint:  
+```http  
+HTTP/1.1 202 Accepted  
+Location: /api/status/12345  
+```  
+
+**Client Workflow**:  
+1. **Poll status endpoint** (from `Location` header):  
+```http  
+GET /api/status/12345  
+```  
+2. **Status response** (e.g., `200 OK`):  
+```json  
+{  
+  "status": "In progress",  
+  "link": { "rel":"cancel", "method":"delete", "href":"/api/status/12345" }  
+}  
+```  
+
+**Completion Handling**:  
+- If the async task **creates a resource**, redirect to its URI once done:  
+```http  
+HTTP/1.1 303 See Other  
+Location: /api/orders/12345  
+```  
+
+**Key Guidelines**:  
+- **202 Accepted**: Signals async processing started (no result yet).  
+- **Status endpoint**: Let clients track progress, cancel, or estimate time.  
+- **303 Redirect**: Post-completion, direct clients to the new resource.  
+
+*Ensure clients handle polling gracefully and respect redirects.*
