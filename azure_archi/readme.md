@@ -100,7 +100,7 @@
 #### RESTful Web API design concepts:
 
 - **URI (Uniform Resource Identifier)**: each resource should be represented by a unique URI that identifies that resource:
-    * ```http
+    ```http
         https://api.contoso.com/orders/1
     ```
 
