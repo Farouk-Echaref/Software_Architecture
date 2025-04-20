@@ -251,3 +251,80 @@ Location: /api/orders/12345
 - **303 Redirect**: Post-completion, direct clients to the new resource.  
 
 *Ensure clients handle polling gracefully and respect redirects.*
+
+#### Implement Data Pagination and Filtering:
+**Pagination**:  
+- Use `limit` (max items per page) and `offset` (starting index) parameters.  
+  ```http  
+  GET /orders?limit=25&offset=50  
+  ```  
+  - **Defaults**: `limit=25`, `offset=0`.  
+  - **Security**: Enforce a `max-limit` (e.g., 100). Exceeding it truncates or returns `400 Bad Request`.  
+
+**Filtering**:  
+- Support query params for criteria (e.g., `minCost`, `status`):  
+  ```http  
+  GET /orders?minCost=100&status=shipped  
+  ```  
+
+**Best Practices**:  
+- **Sorting**: Use `sort` parameter (e.g., `sort=price`).  
+  - ⚠️ *Caching Impact*: Query strings affect cache keys; sorted results may bypass cached data.  
+- **Field Selection**: Let clients request specific fields via `fields=id,name`:  
+  ```http  
+  GET /orders?fields=ProductID,Quantity  
+  ```  
+  - Validate fields to prevent unauthorized data exposure.  
+
+**Workflow Example**:  
+1. **Paginate**: `GET /products?limit=10&offset=20` → Returns items 21-30.  
+2. **Filter & Sort**: `GET /products?category=books&sort=-price` → High-to-low priced books.  
+3. **Select Fields**: `GET /products?fields=title,price` → Only titles and prices.  
+
+*Balance efficiency with security: validate inputs, enforce limits, and document query options clearly.*
+
+#### Support Partial Responses:
+
+**Key Features**:  
+- **Partial Retrieval**: Enable clients to fetch chunks of large files (e.g., images) using byte ranges.  
+- **Headers**:  
+  - **`Accept-Ranges: bytes`**: Indicates partial requests are supported.  
+  - **`Content-Range`**: Specifies returned byte range and total size.  
+
+**HEAD Requests**:  
+- Check resource metadata (size, type, partial support) without downloading the body:  
+  ```http  
+  HEAD /products/10?fields=productImage  
+  ```  
+  Example response:  
+  ```http  
+  HTTP/1.1 200 OK  
+  Accept-Ranges: bytes  
+  Content-Type: image/jpeg  
+  Content-Length: 4580  
+  ```  
+
+**Partial GET Workflow**:  
+1. **Request first chunk**:  
+  ```http  
+  GET /products/10?fields=productImage  
+  Range: bytes=0-2499  
+  ```  
+  Response:  
+  ```http  
+  HTTP/1.1 206 Partial Content  
+  Content-Length: 2500  
+  Content-Range: bytes 0-2499/4580  
+  ```  
+2. **Fetch remaining data**:  
+  ```http  
+  GET /products/10?fields=productImage  
+  Range: bytes=2500-4579  
+  ```  
+
+**Guidelines**:  
+- Use `206 Partial Content` for successful range requests.  
+- Return `416 Range Not Satisfiable` if the range is invalid.  
+- **Optimization**: Use `HEAD` to pre-check resource size and capabilities.  
+
+*Improve performance and reliability for large files by enabling chunked transfers and client-controlled retrieval.*
