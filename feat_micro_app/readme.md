@@ -634,4 +634,35 @@ This rotation helps prevent any one consumer from being overwhelmed while others
 - Email notification dispatchers  
 - Data processing tasks in microservices  
 
+- resources: 
+    - https://www.rabbitmq.com/tutorials/tutorial-three-python
+    - https://www.rabbitmq.com/tutorials/tutorial-two-python
 ---
+
+#### Queue and Message Persistance in RabbitMQ and K8S:
+
+- **Message Persistence in Case of Pod Failures**:
+  - The goal is to **ensure that messages are persisted** (saved and not lost) in RabbitMQ queues, even if the pod crashes or is restarted in a Kubernetes cluster.
+  
+- **Stateful Pod in Kubernetes**:
+  - The RabbitMQ pod is a **stateful pod**, meaning it stores persistent data. In Kubernetes, this type of pod retains data across restarts, unlike stateless pods, which lose their data after a restart.
+  
+- **Need for Persistent Messages**:
+  - If the pod crashes or restarts, you want the messages in the queue to **survive** this failure, so when the pod restarts, the messages are still available for processing.
+
+- **Queue Durability**:
+  - To ensure the messages are retained after a restart, you need to make the **queue durable**. This ensures that the queue will exist even after a pod restart, but **does not automatically persist the messages** inside the queue.
+
+- **Message Durability**:
+  - **Durable queues alone don't guarantee message persistence**. Even if the queue itself survives a restart, without setting message durability, the messages inside the queue might be lost.
+  - To prevent message loss, each **individual message** must be marked as durable. This ensures that the messages are stored on disk and **survive a pod crash or restart**.
+
+- **Configuration**:
+  - When creating the queue, you configure it to be durable, but you must also explicitly tell RabbitMQ to persist the messages themselves by setting the appropriate flag (e.g., `delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE`).
+
+- **Key Point**:
+  - Both **queue durability** (queue survives restarts) and **message durability** (messages survive even if the pod crashes or is restarted) are needed to ensure no message loss in the event of failures.
+- resources:
+    - https://www.rabbitmq.com/docs/persistence-conf
+    - https://www.cloudamqp.com/blog/faq-what-is-the-delivery-mode-in-amqp.html
+    - https://stackoverflow.com/questions/2344022/what-is-the-delivery-mode-in-amqp
