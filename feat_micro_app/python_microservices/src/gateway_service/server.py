@@ -46,7 +46,6 @@ def login():
     
 # Upload route
 # the route to be used to upload our video that we want to convert
-
 @server.route("/upload", methods=["POST"])
 def upload():
     # access is the decoded token claims as a json string that contains our payload with our claims
@@ -72,3 +71,9 @@ def upload():
         return "Success!", 200
     else:
         return "Not Authorized", 401 # Unauthorized http code
+    
+# download endpoint which is going to be used to download the MP3 that was created from the converted video
+
+@server.route("/download", methods=["GET"])
+def download():
+    pass
