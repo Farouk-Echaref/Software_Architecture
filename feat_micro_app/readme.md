@@ -474,7 +474,7 @@ return jwt.encode(
   - Use the ID to **retrieve the video from MongoDB**,
   - Process it (e.g., convert to MP3).
 - This setup allows for **asynchronous communication**.
-- ⚡ **Gateway doesn’t wait** for the conversion to finish — it just **“sends and forgets”**.
+- **Gateway doesn’t wait** for the conversion to finish — it just **“sends and forgets”**.
 - The Gateway can **immediately return a response** to the client after uploading.
 
 ---
