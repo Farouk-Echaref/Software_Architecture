@@ -461,3 +461,42 @@ return jwt.encode(
     * The values are the actual uploaded file objects.
     * resource for file uploads:
         * https://flask.palletsprojects.com/en/stable/patterns/fileuploads/
+
+### Upload logic:
+
+- **Client uploads a video** via the Gateway service.
+- **Gateway stores the file in MongoDB** using **GridFS**.
+- Once upload is successful:
+  - **Gateway puts a message into RabbitMQ**.
+- This message contains the **ID of the uploaded video** in MongoDB.
+- A **downstream service (e.g., Converter Service)** will:
+  - Pull the message from RabbitMQ,
+  - Use the ID to **retrieve the video from MongoDB**,
+  - Process it (e.g., convert to MP3).
+- This setup allows for **asynchronous communication**.
+- ⚡ **Gateway doesn’t wait** for the conversion to finish — it just **“sends and forgets”**.
+- The Gateway can **immediately return a response** to the client after uploading.
+
+---
+
+#### ASCII Diagram of the Flow
+
+```
+[ Client ]
+    │
+    ▼
+[ Gateway Service ]
+    │
+    ├──► Upload video to MongoDB (via GridFS)
+    │
+    └──► Push message (video ID) to RabbitMQ
+                                  │
+                                  ▼
+                       [ Converter Service ]
+                            │
+                            ├──► Pull message from queue
+                            ├──► Retrieve video from MongoDB
+                            └──► Convert video to MP3
+```
+
+---
