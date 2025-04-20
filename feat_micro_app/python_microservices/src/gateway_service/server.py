@@ -76,4 +76,14 @@ def upload():
 
 @server.route("/download", methods=["GET"])
 def download():
-    pass
+    # as always validate the client token
+    access, err = validate.token(request)
+    
+    if err:
+        return err
+    
+    access = json.loads(access)
+    
+# expose the gateway
+if __name__ == "__main__":
+    server.run(host="0.0.0.0", port=8080)
