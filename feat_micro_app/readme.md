@@ -666,3 +666,9 @@ This rotation helps prevent any one consumer from being overwhelmed while others
     - https://www.rabbitmq.com/docs/persistence-conf
     - https://www.cloudamqp.com/blog/faq-what-is-the-delivery-mode-in-amqp.html
     - https://stackoverflow.com/questions/2344022/what-is-the-delivery-mode-in-amqp
+
+---
+
+## Gateway Deployment:
+
+- The service of the gateway will be of type **Cluster IP**, meaning it will have an internal IP address which will only be available within our cluster but our Gateway API needs to be able to be accessed from outside of our cluster so we're actually going to need to create another configuration called an Ingress to Route traffic to our actual Gateway service.
