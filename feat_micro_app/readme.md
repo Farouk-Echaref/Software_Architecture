@@ -500,3 +500,74 @@ return jwt.encode(
 ```
 
 ---
+
+* use gridFS to write data to our mongodb database (uplaod the video to the db):
+    - https://pymongo.readthedocs.io/en/stable/examples/gridfs.html
+
+#### Rabbitmq in our archi:
+
+![alt text](queue_exchane.png)
+
+- producer (gatewat): the service that send the message through an exchange and not directly putting the message on the queue. The exchange is the middleman that allocates messages to their correct queue (we have more than one queue, one for videos and one for mp3s). 
+- How does the exchange routes the messages to the correct queue: 
+    - in our setup we are using the **Default Exchange**
+    - docs: https://www.rabbitmq.com/tutorials/amqp-concepts#exchange-default
+---
+
+#### Extended Flow: Video Upload → MP3 Conversion → MP3 Queue Message
+
+- **Producer**: Gateway Service
+- **Broker**: RabbitMQ (with Exchange, Bindings, Queues)
+- **Consumer 1**: Video-to-MP3 Converter
+- **Consumer 2**: (Could be a downstream service like Notification Service)
+
+---
+
+#### Step-by-Step Flow
+
+1. The **Gateway service** receives a video file from the user.
+2. The Gateway stores the video in **MongoDB**.
+3. It publishes a **message to the Exchange** (e.g., `video_exchange`).
+4. The Exchange **routes the message** to the **video queue** via binding.
+5. The **Video-to-MP3 converter service** consumes the message from the **video queue**.
+6. The converter:
+   - Pulls the video from MongoDB.
+   - Converts it to MP3.
+   - Stores the MP3 in MongoDB.
+7. Then it **publishes a new message** to the **Exchange** for the **mp3 queue**.
+8. The Exchange routes the MP3 message to the **mp3 queue**.
+9. A **downstream consumer** (e.g., Notification or Storage Service) consumes from the **mp3 queue**.
+
+---
+
+```
+[ User ]
+   │
+   ▼
+[ Gateway Service ]
+   │
+   ├──► Store video in MongoDB
+   └──► Publish message to Exchange (video)
+                      │
+                      ▼
+         +---------------------------+
+         |        RabbitMQ           |
+         |     [Exchange Layer]      |
+         +-------------+-------------+
+                       |
+              Bindings (Routing)
+              /                   \
+      [video queue]         [mp3 queue]
+            │                    │
+            ▼                    ▼
+[ Video-to-MP3 Converter ]   [MP3 Consumer]
+      │                           │
+      ├─► Pull video from MongoDB │
+      ├─► Convert to MP3          │
+      ├─► Store MP3 in MongoDB    │
+      └─► Publish message to Exchange (mp3)
+```
+
+#### Issue: overloading the queue with messages:
+
+![alt text](overload_messages.png)
