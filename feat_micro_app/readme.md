@@ -571,3 +571,67 @@ return jwt.encode(
 #### Issue: overloading the queue with messages:
 
 ![alt text](overload_messages.png)
+
+- **Solution**: scale up the video to mp3 consumer.
+- **Issue**: our queue actually needs to be able to accommodate multiple instances of our consumer without bottlenecking the entire flow.
+- **Solution**: Use of the **Competing Consumers Pattern**.
+
+![alt text](competing_pattern.png)
+
+---
+
+#### Competing Consumers Pattern
+
+The **Competing Consumers** pattern is a common and powerful design in message-based systems like RabbitMQ. It allows multiple consumers to concurrently process messages from the same queue, significantly improving system **throughput** and **scalability**.
+
+---
+
+##### How It Works
+
+1. A **Producer** publishes messages to a **queue**.
+2. Multiple **Consumer instances** (e.g., C₁, C₂) subscribe to the same queue.
+3. RabbitMQ uses a **round-robin algorithm** to distribute messages:
+   - The first message goes to Consumer 1.
+   - The second message goes to Consumer 2.
+   - The third message goes back to Consumer 1.
+   - And so on...
+
+This ensures that messages are **evenly distributed** across all available consumers, allowing them to **process in parallel**.
+
+---
+
+##### Why Use This Pattern?
+
+- **Parallelism**: Messages are processed concurrently by multiple consumers.
+- **Scalability**: Add more consumer instances to handle higher message volume.
+- **Load Balancing**: RabbitMQ handles distribution automatically via round-robin.
+- **Performance Boost**: Increases throughput and reduces latency in high-traffic systems.
+
+---
+
+##### Round-Robin Distribution in Action
+
+If you have a queue packed with messages and **two consumer instances**, RabbitMQ will dispatch them like this:
+
+```
+Queue:
+[ Msg1 ] -> Consumer 1
+[ Msg2 ] -> Consumer 2
+[ Msg3 ] -> Consumer 1
+[ Msg4 ] -> Consumer 2
+...
+```
+
+This rotation helps prevent any one consumer from being overwhelmed while others are idle.
+
+---
+
+##### Use Cases
+
+- Video processing pipelines  
+- Background job workers  
+- API request handlers  
+- Email notification dispatchers  
+- Data processing tasks in microservices  
+
+---
