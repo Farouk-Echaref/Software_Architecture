@@ -126,3 +126,25 @@
 - **Polyglot Persistence**:
   - Microservices can use **different types of databases** (SQL, NoSQL) depending on needs.
   - Enables better **performance**, **scalability**, and **manageability**, but adds **complexity** in data coordination.
+
+#### The relationship bettween Microservices and the Bounded Context:
+
+- **Bounded Contexts**:
+  - Divide large domain models into **distinct, well-defined areas**.
+  - Each has **its own model, database**, and **ubiquitous language** (terms used consistently by devs and domain experts).
+  - Terms can vary across contexts even if they represent the same identity (e.g., *User* in one BC may be *Buyer* in another).
+
+- **Microservices = Bounded Contexts as distributed services**:
+  - Each microservice aligns with a BC and is deployed as a **separate process**.
+  - Communicates via **distributed protocols** (HTTP, WebSockets, AMQP, etc.).
+
+- **Difference**:
+  - BCs don't require distribution—they can exist inside a monolithic app.
+  - Microservices enforce distribution and independence.
+
+- **Design tip**:
+  - It's smart to align one microservice per Bounded Context.
+  - But flexibility exists—some BCs may consist of **multiple microservices**.
+
+- **Shared principle**:
+  - Both patterns emphasize **owning the domain model** and **not sharing it across services**.
