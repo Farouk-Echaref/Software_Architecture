@@ -685,3 +685,13 @@ Client Request: http://mp3converter.com/upload
          Pod(s) labeled app=gateway (on port 8080)
 
 ```
+
+- Requests to this host `mp3converter.com` get routed to our localhost, so we are going to map this hostname to localhost on our local machine and we are going to tunnel requests to our local host to minikube.
+- in /etc/hosts:
+    - 127.0.0.1 mp3converter.com
+- then:
+```bash
+minikube addons enable ingress
+minikube tunnel
+```
+## Rabbit StatefulSet:
