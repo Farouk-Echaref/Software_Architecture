@@ -672,3 +672,16 @@ This rotation helps prevent any one consumer from being overwhelmed while others
 ## Gateway Deployment:
 
 - The service of the gateway will be of type **Cluster IP**, meaning it will have an internal IP address which will only be available within our cluster but our Gateway API needs to be able to be accessed from outside of our cluster so we're actually going to need to create another configuration called an Ingress to Route traffic to our actual Gateway service.
+
+![alt text](ingress.png)
+
+```yaml
+Client Request: http://mp3converter.com/upload
+            |
+        Ingress (routes to `gateway` service)
+            |
+     Service: gateway (ClusterIP)
+            |
+         Pod(s) labeled app=gateway (on port 8080)
+
+```
