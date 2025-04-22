@@ -236,3 +236,55 @@ Logical microservices define business capabilities and boundaries, while physica
 - **Ordering Context**: Handles purchases (`Buyer`)
 
 Each of these would become a separate microservice, based on its domain responsibilities.
+
+#### Chal2: How to create queries that retrieve data from several microservices
+
+When data is spread across several microservices, aggregating it efficiently becomes a challenge—especially for client apps that need data from many services (e.g., a mobile screen showing user, basket, and catalog info).
+
+##### Solutions:
+
+- **API Gateway**  
+  Aggregate data from multiple services through a central entry point. Use separate, domain-focused gateways to avoid bottlenecks and preserve microservice autonomy.
+
+- **GraphQL Federation**  
+  Compose data from different services into a unified GraphQL schema, allowing flexible client-side queries across microservices.
+
+- **CQRS with Materialized Views**  
+  Pre-generate read-optimized, denormalized tables that combine data from various services. Ideal for performance and complex UI screens. Trades off real-time consistency for speed and scalability.
+
+- **Cold Data in Central Databases**  
+  For analytics and reporting, export data into a central warehouse (e.g., Hadoop, Azure SQL DW). Used only for queries, not for transactional updates. Updated via events or import/export processes.
+
+##### Design Tip:
+If your app frequently needs to join data from multiple microservices in real time, it might indicate a design issue—consider merging those services or re-evaluating boundaries.
+
+#### Chal3: How to achieve consistency across multiple microservices
+
+![alt text](microservices_consistency.png)
+
+In microservices, each service owns its data and must expose it only via its API. This makes ensuring consistency across services a key challenge—especially during cross-service business processes.
+
+#### Example:
+- **Catalog Service** updates a product's price.
+- **Basket Service** stores previously added items with the old price.
+- When the price changes, baskets containing the item should be updated, and users notified.
+
+#### In a Monolith:
+A single ACID transaction would update both tables directly.
+
+#### In Microservices:
+Direct database access between services is not allowed. Instead, consistency must be **eventual**, using asynchronous communication.
+
+#### Solutions:
+
+- **Event-Driven Communication**  
+  Use integration events to inform other services of changes (e.g., Catalog emits a `ProductPriceChanged` event, and Basket updates accordingly).
+
+- **Publish/Subscribe Messaging**  
+  Services publish events and others subscribe to relevant changes to update their own state asynchronously.
+
+- **Trade-offs** (based on the CAP theorem):  
+  Microservices prioritize **availability and scalability** over strong consistency. Developers must handle **eventual consistency** through logic in the consuming services.
+
+#### Important Note:
+Two-phase commits or distributed transactions are discouraged—they break microservices principles and aren’t supported by many NoSQL systems.
