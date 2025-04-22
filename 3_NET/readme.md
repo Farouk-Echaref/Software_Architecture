@@ -345,3 +345,107 @@ Ordering Service --> [Publish OrderCreated Event]
 ##### Bonus
 You can also add an **Orchestrator Service** or use **Saga patterns** for more complex workflows (like compensation logic when something fails).
 
+### Identify domain-model boundaries for each microservice
+
+#### Goal
+Not to split services as small as possible, but to create **meaningful separations** based on **business capabilities** (not just technical boundaries).
+
+#### Key Concepts
+
+- **Bounded Context (BC)** from DDD (Domain-Driven Design):
+  - A boundary within which a particular domain model is defined and applicable.
+  - Each microservice should ideally correspond to a Bounded Context.
+
+- **Cohesion**:
+  - A high number of internal dependencies = good candidate for a single microservice.
+  - If parts of the system are tightly related, they should be grouped.
+
+- **Conway's Law**:
+  - Systems mirror the communication structure of the organization that built them.
+  - You can reverse this to **reshape teams based on how you want services to work**.
+
+- **Context Mapping**:
+  - Technique to identify boundaries between subsystems.
+  - Use to define relationships and integration contracts between microservices.
+
+- **Ubiquitous Language**:
+  - Terms like `User`, `Buyer`, `Payer`, `Customer` all represent the *same identity* in different **bounded contexts** with different attributes.
+  - Each microservice owns only **the part of the entity it needs**.
+
+---
+
+#### Code Example: Structuring Domain Boundaries
+
+##### Python FastAPI Microservices Example
+
+###### `user_service.py` (Handles User personal data)
+```python
+# user_service/models.py
+class User(BaseModel):
+    id: str
+    name: str
+    email: str
+```
+
+###### `order_service.py` (Handles Buyer logic)
+```python
+# order_service/models.py
+class Buyer(BaseModel):
+    id: str
+    loyalty_level: str  # specific to ordering context
+```
+
+###### `payment_service.py` (Handles Payer logic)
+```python
+# payment_service/models.py
+class Payer(BaseModel):
+    id: str
+    billing_info: str
+```
+
+Each microservice treats `User`, `Buyer`, `Payer` as separate models even though they represent the same person.
+
+---
+
+##### NestJS Domain Separation Example
+
+###### `user-service/user.entity.ts`
+```ts
+export class User {
+  id: string;
+  fullName: string;
+  email: string;
+}
+```
+
+###### `order-service/buyer.entity.ts`
+```ts
+export class Buyer {
+  id: string;
+  loyaltyStatus: string;
+}
+```
+
+###### `payment-service/payer.entity.ts`
+```ts
+export class Payer {
+  id: string;
+  cardLast4: string;
+}
+```
+
+> Each service uses only the **fields it needs**, reducing duplication and coupling.
+
+---
+
+#### Design Tips
+
+| Principle                          | What to Do                                                                 |
+|-----------------------------------|-----------------------------------------------------------------------------|
+| Bounded Context                   | Identify subdomains and define separate models per domain                  |
+| Ubiquitous Language               | Accept different naming and attributes per service                         |
+| Don't unify all models            | Let each microservice own what matters for its business logic              |
+| Integration Contracts             | Use APIs, events, or message brokers for communication between BCs         |
+| Ownership                        | Only one service should update/own a particular data entity or attribute   |
+
+---
