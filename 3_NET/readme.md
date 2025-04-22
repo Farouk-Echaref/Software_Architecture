@@ -347,6 +347,9 @@ You can also add an **Orchestrator Service** or use **Saga patterns** for more c
 
 ### Identify domain-model boundaries for each microservice
 
+![alt text](micro_domain_model.png)
+![alt text](decomposing_data_model.png)
+
 #### Goal
 Not to split services as small as possible, but to create **meaningful separations** based on **business capabilities** (not just technical boundaries).
 
