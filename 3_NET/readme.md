@@ -264,18 +264,18 @@ If your app frequently needs to join data from multiple microservices in real ti
 
 In microservices, each service owns its data and must expose it only via its API. This makes ensuring consistency across services a key challenge—especially during cross-service business processes.
 
-#### Example:
+##### Example:
 - **Catalog Service** updates a product's price.
 - **Basket Service** stores previously added items with the old price.
 - When the price changes, baskets containing the item should be updated, and users notified.
 
-#### In a Monolith:
+##### In a Monolith:
 A single ACID transaction would update both tables directly.
 
-#### In Microservices:
+##### In Microservices:
 Direct database access between services is not allowed. Instead, consistency must be **eventual**, using asynchronous communication.
 
-#### Solutions:
+##### Solutions:
 
 - **Event-Driven Communication**  
   Use integration events to inform other services of changes (e.g., Catalog emits a `ProductPriceChanged` event, and Basket updates accordingly).
@@ -286,5 +286,62 @@ Direct database access between services is not allowed. Instead, consistency mus
 - **Trade-offs** (based on the CAP theorem):  
   Microservices prioritize **availability and scalability** over strong consistency. Developers must handle **eventual consistency** through logic in the consuming services.
 
-#### Important Note:
+##### Important Note:
 Two-phase commits or distributed transactions are discouraged—they break microservices principles and aren’t supported by many NoSQL systems.
+
+#### Chal4: How to design communication across microservice boundaries
+
+- In microservices, **how services communicate** is as important as **what protocol** they use. The focus is on **communication style and coupling**, not just REST, HTTP, or messaging.
+
+##### Problem:
+- Distributed systems are prone to **partial failures**.
+- Designing microservices like tightly coupled objects (as in a monolith) leads to **fragile chains** of dependencies.
+
+##### Example Pitfall:
+A client sends an HTTP request to `Ordering` → which calls `Payment` → which calls `Inventory`, all **synchronously**.  
+If **any service fails**, the whole chain breaks. This leads to:
+- **Blocking & Performance issues**: The original request waits for all calls to finish.
+- **Tight Coupling**: Services rely on others, violating autonomy.
+- **Brittleness**: A single point of failure breaks the workflow.
+
+##### Recommendation:
+- Avoid chaining synchronous HTTP calls between microservices.
+- Use **asynchronous communication** between services:
+  - Message-based communication (e.g., with queues or event buses).
+  - Event-driven architecture (publish/subscribe).
+  - If HTTP is used, **decouple the call** from the request/response cycle (e.g., via polling or async updates).
+
+> TL;DR: Chains of synchronous calls = hidden monolith. Use **async patterns** to boost resiliency and maintain microservice autonomy.
+
+##### **Bad Example: Synchronous HTTP Chain**
+Let’s say you’re placing an order in an e-commerce app:
+
+```plaintext
+Client --> Ordering Service --> Payment Service --> Inventory Service
+```
+
+All of these are **synchronous HTTP calls**.  
+If `Inventory Service` is slow or down, **everything blocks** — and the client gets an error or timeout.  
+This is fragile, tightly coupled, and hard to scale.
+
+---
+
+##### **Good Example: Asynchronous Communication Using Events**
+
+```plaintext
+Client --> Ordering Service
+Ordering Service --> [Publish OrderCreated Event]
+        |
+        +--> Payment Service (subscribed to OrderCreated)
+        +--> Inventory Service (subscribed to OrderCreated)
+```
+
+- `Ordering Service` **publishes an event** like `OrderCreated` to a message broker (e.g., RabbitMQ, Kafka, or Azure Service Bus).
+- `Payment Service` and `Inventory Service` **subscribe** to this event and process it **independently and asynchronously**.
+- If any service is down, the message can be retried later — no blocking, no broken chains.
+
+---
+
+##### Bonus
+You can also add an **Orchestrator Service** or use **Saga patterns** for more complex workflows (like compensation logic when something fails).
+
