@@ -148,3 +148,73 @@
 
 - **Shared principle**:
   - Both patterns emphasize **owning the domain model** and **not sharing it across services**.
+
+### Logical Architecture vs Physical Architecture:
+
+![alt text](logic_vs_physique.png)
+
+- **Microservices = Logical Architecture**
+  - Microservices are about **designing your app's structure**, not about a specific technology.
+  - They can be run as containers, processes, or any other form—**Docker is not required**.
+
+- **Logical vs. Physical**:
+  - **Logical architecture**: How your system is structured conceptually (e.g., business microservices or Bounded Contexts).
+  - **Physical architecture**: How it's actually **deployed or hosted** (e.g., number of services, containers, infrastructure setup).
+  - These two don't always match 1-to-1.
+
+- **Flexible Implementation**:
+  - A **single logical microservice** might map to:
+    - One physical service or container (common case).
+    - **Multiple services**, processes, or containers (especially in large, complex systems).
+
+- **Why split a logical service into multiple physical services?**
+  - For **scaling** (e.g., Web API vs. Search service needing different compute resources).
+  - For **deployment independence** within the same business domain.
+  - As long as they share the same **data model** and serve the same domain, it's fine.
+
+- **Main takeaway**:
+  - Logical microservices are defined by **domain autonomy** and **independent deployment/versioning**, not by how many services or containers exist physically.
+
+#### Example: Catalog Microservice in an E-commerce Platform
+
+##### Logical Architecture:
+You define a single business microservice called `Catalog` that handles:
+- Product and category management  
+- Serving product metadata to other services
+
+This is the **logical microservice**. It owns its data, domain logic, and has its own bounded context.
+
+---
+
+##### Physical Architecture Options
+
+**Option 1: One-to-One Mapping**  
+`Catalog` is implemented as a single service:
+
+```
+Logical Catalog Microservice
+└── Physical Service: catalog-service (REST API)
+    └── Database: catalog-db
+```
+
+**Option 2: One-to-Many Mapping**  
+As the system scales, the Catalog microservice is split into multiple physical services:
+
+```
+Logical Catalog Microservice
+├── catalog-api-service (admin/product management)
+├── catalog-search-service (optimized for read/search operations)
+├── catalog-image-service (serves product images)
+└── Shared database or separate stores where appropriate
+```
+
+- `catalog-api-service`: Handles product updates by admins.
+- `catalog-search-service`: Scales independently to handle customer queries.
+- `catalog-image-service`: Delivers images, possibly using a CDN or blob storage.
+
+Each service is a separate process or container but remains part of the same logical Catalog microservice.
+
+---
+
+##### Key Point:
+Logical microservices define business capabilities and boundaries, while physical services represent the actual deployed units. One logical microservice can map to one or multiple physical services depending on scalability and deployment needs.
