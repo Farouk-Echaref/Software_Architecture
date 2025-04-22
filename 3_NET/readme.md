@@ -218,3 +218,21 @@ Each service is a separate process or container but remains part of the same log
 
 ##### Key Point:
 Logical microservices define business capabilities and boundaries, while physical services represent the actual deployed units. One logical microservice can map to one or multiple physical services depending on scalability and deployment needs.
+
+### Challenges and Solutions for distributed data management:
+#### Chal1: How to define the boundaries of each microservice
+
+- The first challenge in microservice architecture is identifying the right boundaries for each service. This starts with analyzing the **logical domain models** of the application.
+
+##### Key Guidelines:
+- Look for **independent contexts** with minimal data and logic coupling.
+- Identify areas with **different business vocabularies** (e.g., "User" vs "Customer" vs "Buyer")—even if they refer to the same person, they serve different roles in different contexts.
+- Each **Bounded Context** should encapsulate its own data and domain logic.
+- Boundaries should reflect real business divisions, allowing services to evolve independently.
+
+##### Example:
+- **Identity Context**: Manages users and authentication (`User`)
+- **CRM Context**: Manages customer relationships (`Customer`)
+- **Ordering Context**: Handles purchases (`Buyer`)
+
+Each of these would become a separate microservice, based on its domain responsibilities.
