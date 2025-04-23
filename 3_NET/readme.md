@@ -452,3 +452,30 @@ export class Payer {
 | Ownership                        | Only one service should update/own a particular data entity or attribute   |
 
 ---
+
+### The API gateway pattern versus the Direct client-to-microservice communication
+#### Direct client-to-microservice communication
+
+![alt text](direct_client_to_micro.png)
+
+In this model, client applications directly call each individual microservice. Each microservice exposes a public endpoint, often with its own port. In production, these requests are typically routed through a load balancer or Application Delivery Controller (ADC), which can also handle SSL termination and routing.
+
+This setup can work well for smaller applications or server-rendered web apps, but it presents several limitations as complexity increases:
+
+- **Too many round-trips:** Building a single UI view may require calling multiple services, increasing latency and chattiness.
+- **Duplicated concerns:** Cross-cutting concerns like authentication, logging, or transformation logic must be implemented in every microservice.
+- **Protocol mismatch:** Backend services might use protocols that are not browser- or mobile-friendly (like AMQP), requiring translation layers.
+- **Inefficient APIs for mobile:** Microservices may not return data in an optimized way for mobile clients, leading to over-fetching or under-fetching.
+
+---
+
+##### **API Gateway Pattern**
+
+To address these issues, an **API Gateway** sits between the client and the microservices. It serves as a single entry point, aggregating and routing requests to the appropriate services.
+
+Benefits of using an API Gateway:
+
+- **Reduces round-trips:** Aggregates data from multiple services before returning it to the client, reducing latency.
+- **Centralizes cross-cutting concerns:** Handles security, authentication, logging, throttling, and more in a single place.
+- **Protocol translation:** Converts client-friendly HTTP requests into backend-specific protocols when needed.
+- **Custom facades for clients:** Provides tailored endpoints optimized for different clients (e.g. web vs mobile), reducing payload size and improving performance.
