@@ -479,3 +479,163 @@ Benefits of using an API Gateway:
 - **Centralizes cross-cutting concerns:** Handles security, authentication, logging, throttling, and more in a single place.
 - **Protocol translation:** Converts client-friendly HTTP requests into backend-specific protocols when needed.
 - **Custom facades for clients:** Provides tailored endpoints optimized for different clients (e.g. web vs mobile), reducing payload size and improving performance.
+
+#### Why consider API Gateways instead of direct client-to-microservice communication
+
+- As applications grow and require access to multiple microservices, having client apps communicate directly with each microservice introduces several challenges:
+
+##### 1. **Tight Coupling**
+- Clients must know about the internal structure and endpoints of microservices.
+- Any change in service endpoints or microservice decomposition affects the clients.
+- Frequent updates to the client become necessary, making maintenance and evolution difficult.
+
+##### 2. **Too Many Round-Trips**
+- A single UI screen might require multiple calls to different services.
+- This increases network latency and leads to poor user experience.
+- An API Gateway can aggregate data and reduce these round-trips.
+
+##### 3. **Security Risks**
+- All microservices must be publicly exposed without a gateway.
+- This increases the attack surface and makes the system more vulnerable.
+- API Gateways help by exposing only necessary endpoints and hiding internal services.
+
+##### 4. **Duplicated Cross-Cutting Concerns**
+- Every exposed service must individually handle things like:
+  - Authentication
+  - SSL termination
+  - Logging
+- These concerns can be centralized at the gateway level, simplifying the microservices.
+
+- The API Gateway acts as a protective and simplifying layer that decouples clients from the internal microservice architecture, allowing services to evolve independently while improving security, performance, and maintainability.
+
+#### What is the API Gateway pattern?:
+
+![alt text](single_api_gateway.png)
+
+![alt text](multiple_api_gateway.png)
+
+- An **API Gateway** is a service that acts as a **single-entry point** for a set of microservices. It serves as a facade between client applications and the backend services, helping manage communication and enforce cross-cutting concerns.
+
+##### **Core Role and Benefits**
+- Routes client requests to appropriate microservices.
+- Acts as a **reverse proxy**.
+- Handles cross-cutting concerns like:
+  - Authentication and authorization
+  - SSL termination
+  - Caching
+  - Request/response transformation
+
+##### **Similar to the Facade Pattern**
+- Like a facade in object-oriented design, but applied to distributed systems.
+- Also known as **Backend for Frontend (BFF)** — an API gateway tailored to a specific client type (e.g., mobile, web).
+
+##### **Implementation Example**
+- Can be built as a custom service (e.g., using ASP.NET Core) and deployed as a container.
+- Clients communicate with the gateway instead of calling microservices directly.
+
+##### **Design Considerations and Risks**
+- A **single API Gateway** serving all clients and all microservices can become:
+  - A **bottleneck**
+  - A **monolithic service** in itself
+  - A source of **tight coupling** across services
+- This breaks microservice autonomy and scalability.
+
+##### **Recommended Approach**
+- **Split the API Gateway** based on:
+  - **Client type** (mobile vs. web): This is the **BFF pattern**
+  - **Business boundaries**: Align gateways with domains or service groups
+- Each gateway can expose only the endpoints needed by a specific client or domain, keeping the system modular and easier to evolve.
+
+- The API Gateway pattern helps simplify client interactions, enhance security, and centralize certain concerns — but it must be designed carefully to avoid becoming a new kind of monolith.
+
+#### Main features in the API Gateway pattern:
+
+- An API Gateway centralizes and simplifies the interaction between client apps and microservices.
+- It plays a key role in **decoupling** the client from the backend and enabling clean, scalable microservice architectures.
+Its **core features** generally fall into three main categories:
+
+---
+
+##### 1. **Reverse Proxy / Gateway Routing**
+- **Primary Role**: Routes incoming client requests to appropriate backend services (Layer 7 routing, usually over HTTP).
+- **Function**:
+  - Provides a **single entry point** (URL) for all client apps.
+  - Internally maps requests to the correct **microservice endpoints**.
+- **Use Case**:
+  - Ideal for **decoupling** clients from backend service changes.
+  - Helpful in **modernizing monolithic systems**: Gateway sits in front of the monolith and hides structural changes from clients while new microservices are gradually introduced.
+
+---
+
+##### 2. **Requests Aggregation**
+- **What It Does**: Combines multiple service calls into a single request/response cycle.
+- **Why It Matters**:
+  - Reduces **network chattiness** and **latency**, especially important for remote clients (e.g., mobile apps or SPAs).
+  - Improves **performance and UX** by aggregating data before returning it to the client.
+- **Implementation**:
+  - Can be handled **natively by the gateway** (if supported).
+  - More flexible when done via **custom aggregation microservices** behind the gateway (e.g., using code in C#).
+
+---
+
+##### 3. **Cross-Cutting Concerns / Gateway Offloading**
+- API Gateway helps **offload** and centralize common functionality that would otherwise need to be implemented in every microservice.
+- **Examples of Cross-Cutting Features**:
+  - **Authentication & Authorization**
+  - **Service Discovery** support
+  - **Response Caching**
+  - **Retry Policies**, Circuit Breakers, and **Quality of Service (QoS)**
+  - **Rate Limiting** & **Throttling**
+  - **Load Balancing**
+  - **Logging**, Tracing, Correlation IDs
+  - Request transformations (headers, query strings, claims)
+  - **IP Whitelisting / Allowlisting**
+
+#### Azure API Management:
+
+![alt text](azure_api_management.png)
+
+- Full API management solution; API Gateway is a component within it  
+- Acts as a reverse proxy to route and secure microservice APIs  
+- Provides logging, security, metering, and real-time analytics  
+- Allows API filtering and authorization at the gateway level  
+- Supports key-based, token-based, and IP-based security  
+- Enables rate limiting, quotas, and response caching  
+- Lets you modify API behavior using policy definitions  
+- Suitable for large applications deployed on Azure  
+- Reduces risk of monolithic gateway due to being configuration-based rather than code-heavy  
+- Not used in sample architectures like eShopOnContainers to keep things simple and container-focused  
+
+---
+
+##### **Ocelot**
+
+- Lightweight, open-source API Gateway built with .NET Core  
+- Designed for microservices needing a unified entry point  
+- Offers routing, authentication, and basic gateway features  
+- Deployed in the same environment as microservices (e.g., Docker, Kubernetes)  
+- Cross-platform (runs on Linux and Windows)  
+- Used in eShopOnContainers for its simplicity and integration with .NET Core  
+- Best suited for simpler or smaller microservice applications  
+
+#### Drawbacks of the API Gateway patter : 
+
+- **Coupling with microservices**  
+  - The gateway becomes tightly linked to internal services, reducing flexibility and increasing complexity.
+
+- **Potential single point of failure**  
+  - If the gateway goes down, access to all services may be blocked.
+
+- **Increased latency**  
+  - Adds an extra network hop, which may slightly increase response time, though usually less than multiple direct calls from the client.
+
+- **Scalability concerns**  
+  - If not properly scaled, the gateway can become a performance bottleneck.
+
+- **Additional development and maintenance effort**  
+  - Custom logic or data aggregation in the gateway adds complexity.  
+  - Changes in microservices may require corresponding updates in the gateway.
+
+- **Team bottlenecks**  
+  - A centralized API Gateway developed by a single team may slow down overall progress.  
+  - Better to split gateway responsibilities across teams or create multiple fine-grained gateways for different client needs.
