@@ -777,3 +777,23 @@ Its **core features** generally fall into three main categories:
   - Generate **client stubs**.
   - Enable **service discovery and documentation** automatically.
 
+##### Push and real-time communication based on HTTP
+
+![alt text](push_real_time_com.png)
+
+###### **Purpose**
+- Not a replacement for REST — used when you need **real-time updates** pushed to multiple clients.
+---
+
+###### **How It Works**
+- The **server pushes content** to connected clients **as soon as data is available**, instead of waiting for client requests.
+- Enables **asynchronous**, **real-time** communication with **low latency**.
+---
+
+###### **Key Technologies**
+- **SignalR** (ASP.NET framework for real-time web functionality)
+- **WebSockets** (underlying protocol allowing persistent, full-duplex communication)
+---
+
+##### **Use Case Example**
+- A backend service pushes **live score updates** of a sports match to **all connected web clients** instantly.
