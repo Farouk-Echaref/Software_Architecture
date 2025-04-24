@@ -936,3 +936,46 @@ Ensuring **atomic state updates** and **reliable event publication** in a micros
 - **Message Idempotence**: Handle duplicate event deliveries safely.
 - **Message Deduplication**: Ensure receivers process a message only once.
 - These will be discussed in-depth later in the guide.
+
+### Creating, evolving, and versioning microservice APIs and contracts
+
+#### **The API is a Contract**
+- **Defines communication** between a microservice and its clients.
+- If the API **changes**, it impacts clients and API Gateways — so maintaining **contract integrity** is crucial for independent service evolution.
+
+---
+
+#### **Types of API Contracts**
+- **Messaging-based (e.g., AMQP)**: Defined by message types.
+- **HTTP-based (e.g., REST)**: Defined by endpoints (URLs), request/response formats (typically JSON).
+
+---
+
+#### **Need for API Evolution**
+- Over time, APIs **must change** (e.g., feature additions, refactoring).
+- You **can’t assume all clients will instantly adopt** the new API version.
+- You need a **versioning strategy** to support **backward compatibility**.
+
+---
+
+#### **Handling Small API Changes**
+- For minor changes (e.g., adding optional parameters or attributes):
+  - Use **default values** for missing fields.
+  - Allow clients to **ignore extra fields** in responses.
+  - This enables backward-compatible upgrades.
+
+---
+
+#### **Handling Major (Breaking) Changes**
+- For **incompatible changes**, the service should **support multiple versions** for some time.
+- Common strategies:
+  - **URL-based versioning**: `/api/v1/...` or `/api/v2/...`
+  - **Header-based versioning**: Include version info in HTTP headers.
+  - **Run multiple service instances**, each handling a version.
+  - Use the **Mediator pattern** (e.g., MediatR in .NET) to handle different versions internally with separate handlers.
+
+---
+
+#### **Best Practice for REST APIs**
+- Use **Hypermedia (HATEOAS)** for more flexible, self-describing, and evolvable APIs — ideal for long-term REST API maintenance.
+
