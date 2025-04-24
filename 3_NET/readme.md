@@ -639,3 +639,108 @@ Its **core features** generally fall into three main categories:
 - **Team bottlenecks**  
   - A centralized API Gateway developed by a single team may slow down overall progress.  
   - Better to split gateway responsibilities across teams or create multiple fine-grained gateways for different client needs.
+
+### Communication in a microservice architecture:
+
+- **Monolithic Communication**
+  - Uses in-process function/method calls (e.g., `new ClassName()`).
+  - Can be tightly coupled or decoupled using Dependency Injection.
+  - All components run within the same process.
+
+- **Microservices Communication Challenges**
+  - Moving from in-process calls to inter-service RPC can lead to **chatty**, inefficient communication.
+  - Distributed systems introduce complexity (e.g., latency, failures).
+  - Known risks captured in the **Fallacies of Distributed Computing**.
+
+- **Best Practices for Microservices Communication**
+  - **Isolate microservices** as much as possible.
+  - Use **asynchronous communication** to reduce direct dependencies.
+  - Replace fine-grained interactions with **coarse-grained messaging**.
+  - Aggregate internal service calls before responding to the client.
+
+- **Microservices as Distributed Systems**
+  - Each service runs as a **separate process**, often on different hosts.
+  - Communication occurs via inter-process protocols like **HTTP, AMQP, or TCP**.
+
+- **Design Philosophy**
+  - Follows **"Smart endpoints and dumb pipes"**: logic in services, simple transport.
+  - Each service manages its own **data and domain logic**.
+  - Prefer **RESTful APIs** and **event-driven communication** over complex orchestration.
+
+- **Communication Protocols**
+  - Use **HTTP request/response** for queries.
+  - Use **lightweight async messaging** for updates and inter-service events.
+
+#### Communication Types:
+
+##### **Axis 1: Protocol Type – Synchronous vs Asynchronous**
+
+- **Synchronous Communication**
+  - Protocol example: **HTTP/HTTPS**.
+  - Client sends a request and **waits for a response**.
+  - Execution can be synchronous (thread-blocking) or asynchronous (non-blocking), but the protocol itself requires a response to proceed.
+  
+- **Asynchronous Communication**
+  - Protocol example: **AMQP** (used by RabbitMQ, Azure Service Bus, etc.).
+  - Client sends a message and **does not wait** for a response.
+  - Suitable for **decoupled, event-driven** systems.
+
+##### **Axis 2: Receiver Type – Single vs Multiple Receivers**
+
+- **Single Receiver**
+  - Message is processed by **one specific service**.
+  - Example: **Command pattern** – targeted requests.
+
+- **Multiple Receivers**
+  - Message is processed by **zero or more services**.
+  - Always **asynchronous**.
+  - Example: **Publish/Subscribe** pattern – used in event-driven architectures.
+  - Implemented using tools like **Azure Service Bus Topics** and **Subscriptions**.
+
+##### **Usage in Microservices**
+
+- Microservice-based applications often combine:
+  - **Synchronous + Single Receiver** → e.g., HTTP API calls.
+  - **Asynchronous + Multiple Receivers** → e.g., events via message brokers.
+
+- The most critical concern isn't the sync/async protocol but ensuring **asynchronous integration** that maintains **microservice independence**.
+
+#### Asynchronous microservice integration enforces microservice’s autonomy
+
+![alt text](async_com.png)
+
+##### **Key Principle**
+- **Minimize inter-service communication.**
+- When communication is needed, **make it asynchronous** to preserve autonomy and resilience.
+
+---
+
+##### **Why Avoid Synchronous Communication Between Microservices**
+
+- **Synchronous chains** (e.g. service A calls B, which calls C) create tight coupling and **reduce resilience**.
+- If one service fails or is slow, the **whole request chain degrades or breaks**.
+- Microservices should remain **available and responsive** even if others are down.
+
+---
+
+##### **Best Practices**
+
+- **Never rely on synchronous calls** to other microservices during client-facing operations.
+- **Avoid synchronous queries** for data owned by other services.
+- Use **eventual consistency** by:
+  - **Replicating necessary data** (only the required attributes) into the calling service.
+  - Using **integration events** to update data asynchronously.
+- **Do not invoke downstream actions synchronously**; raise integration events instead.
+
+---
+
+##### **Example: eShopOnContainers**
+- `identity-api` manages user data (`User` entity).
+- `Ordering` microservice stores a related but **simplified** `Buyer` entity with only relevant fields.
+- This keeps services **loosely coupled** and tailored to their own domains (Bounded Contexts).
+
+---
+
+##### **Protocol Flexibility**
+- Use **any protocol** (e.g., message bus, event broker, or HTTP polling) for asynchronous data propagation.
+- **The protocol is secondary** — what's critical is **eliminating synchronous dependencies**.
