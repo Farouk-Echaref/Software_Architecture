@@ -1078,3 +1078,86 @@ Ensuring **atomic state updates** and **reliable event publication** in a micros
   - Keep it beginner-friendly
   - Avoid added complexity (especially for Xamarin mobile apps)
 
+### **Resiliency & High Availability in Microservices**
+
+#### **Key Challenge: Handling Failures**
+- **Distributed systems** face frequent and unpredictable failures.
+- Handling failures goes beyond exception handling:
+  - What if the **microservice crashes or the host machine fails**?
+  - Who detects the failure?
+  - How does it **restart** and **recover its state**?
+
+---
+
+#### **Goals of Resilient Microservices**
+1. **Self-healing compute**: Microservices should be restartable on another machine/container.
+2. **State resilience**: Data must remain consistent and recoverable after a restart.
+
+---
+
+#### **Upgrade Resilience**
+- Failures can happen **during deployments/upgrades**.
+- A microservice must:
+  - Know whether to **roll forward** or **roll back**.
+  - **Emit health information** to help orchestrators decide.
+  - Ensure enough healthy instances exist before proceeding.
+
+---
+
+#### **Cloud-native Principle: Embrace Failure**
+- In cloud environments, **partial failures are expected** (e.g., network blips, container restarts).
+- Clients and services must:
+  - Retry requests/messages intelligently.
+  - Use strategies like:
+    - **Retries with exponential backoff**
+    - **Circuit Breaker pattern**  
+      (e.g., via `.NET` libraries like **Polly**)
+
+---
+
+#### **Health Management & Diagnostics**
+
+##### **Why It Matters**
+- Microservices must expose **health status** and **diagnostics** for effective operations.
+- Challenges include:
+  - Correlating logs across distributed services.
+  - Handling **clock skew** when analyzing event sequences.
+  - Standardizing **logging formats** across teams.
+
+---
+
+##### **Health vs. Diagnostics**
+- **Diagnostics** = Logs and events (e.g., errors, warnings, stack traces).
+- **Health** = Real-time service status to guide **operations & orchestration**.
+
+---
+
+##### **Health Checks**
+- Help determine whether a service can function or should be restarted/upgraded.
+- Two key types:
+  - **Liveness**: Is the service running and able to respond?
+  - **Readiness**: Are its dependencies (DB, queues) ready for real work?
+
+- Tools:
+  - `.NET HealthChecks` library
+  - `AspNetCore.Diagnostics.HealthChecks` (NuGet)
+
+---
+
+##### **Logging & Event Streaming**
+- Microservices **should not manage their own log routing**.
+- Instead, write logs to **standard output**; the infrastructure collects and ships them.
+- Examples:
+  - `Microsoft.Diagnostic.EventFlow`
+  - External tools: **Azure Monitor**, **Splunk**, **ELK Stack**, etc.
+
+---
+
+##### **Role of Orchestrators**
+
+![alt text](orchestration_health.png)
+
+- As systems scale (many microservices & instances), managing **availability, health, diagnostics** becomes complex.
+- Use **orchestrators** (like Kubernetes, Azure Service Fabric, etc.) to:
+  - Handle service failures, restarts, deployments.
+  - Collect and monitor logs and health metrics.
