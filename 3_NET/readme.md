@@ -1014,3 +1014,67 @@ Ensuring **atomic state updates** and **reliable event publication** in a micros
   - Service registration and discovery is **automated**.
   - A **proxy on each node** acts as a **server-side discovery router**.
 
+### Creating composite UI based on microservices:
+
+![alt text](mono_ui.png)
+![alt text](composite_ui.png)
+
+#### **Traditional Approach**
+- Most microservice-based systems start with **backend microservices** handling data and logic.
+- But the **UI often remains a monolith**.
+- This looks like:
+  - A **single client-side app** (web or mobile) consuming multiple backend microservices.
+  - Microservices focus only on **data and logic**, not UI rendering.
+
+---
+
+#### **Composite UI / Micro Frontends Approach**
+- A more advanced model where **microservices also contribute to the UI**.
+- The **UI is composed dynamically**, with each microservice **providing data and its visual representation** (ViewModel + template).
+- Each **UI component** (e.g., written in TypeScript) **registers with an infrastructure service** at startup to request its ViewModel.
+
+---
+
+#### **How It Works**
+- Each microservice handles:
+  - Its **domain logic**
+  - The **shape and behavior** of a specific part of the UI
+- At runtime:
+  - UI components **pull data + structure** from the relevant microservices.
+  - If a microservice changes the ViewModel, the **UI updates accordingly**.
+
+---
+
+#### **Visual Concept**
+- Traditional:  
+  `Monolithic UI ⇨ Consumes multiple microservices`
+
+- Composite UI:
+  `Each microservice ⇨ Provides data + controls UI components`
+
+---
+
+#### **Benefits**
+- **True microservice autonomy** (UI, logic, and data are all owned by a service).
+- **Easier to scale and evolve UI independently**.
+- Supports **independent deployment** of UI parts.
+
+---
+
+#### **Challenges**
+- **More complex setup**, especially in:
+  - **Traditional web apps** (ASP.NET MVC, etc.)
+  - **Single Page Applications (SPAs)** (React, Angular)
+  - **Native mobile apps** (e.g., Xamarin)
+
+- Composite UI requires:
+  - Good **infrastructure for ViewModel delivery**
+  - Coordination for **layout, routing, and consistency**
+
+---
+
+#### **Example Use Case**
+- The **eShopOnContainers** sample uses a **monolithic UI**, mainly to:
+  - Keep it beginner-friendly
+  - Avoid added complexity (especially for Xamarin mobile apps)
+
