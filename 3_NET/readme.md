@@ -979,3 +979,38 @@ Ensuring **atomic state updates** and **reliable event publication** in a micros
 #### **Best Practice for REST APIs**
 - Use **Hypermedia (HATEOAS)** for more flexible, self-describing, and evolvable APIs — ideal for long-term REST API maintenance.
 
+### **Microservices Addressability & Service Registry**
+
+#### **Service Naming and Addressability**
+- Each microservice must have a **unique name (like a URL)** to identify and locate it — similar to how **DNS resolves hostnames**.
+- This makes services **independent of the underlying infrastructure** (i.e., you don’t need to know which machine it's running on).
+---
+
+#### **Why It Matters**
+- Without proper naming and discovery, **reliability, scalability, and recovery** become difficult.
+- **Automatic recovery from failure** (like moving a service to another machine) only works if services can **find each other dynamically**.
+---
+
+#### **Service Registry Pattern**
+- A **centralized registry** holds the **network locations of service instances**.
+- Used for **service discovery**: microservices register themselves so others can find them.
+- The registry must be:
+  - **Highly available**
+  - **Up-to-date**
+  - Capable of **automatic deregistration** on failure or shutdown
+---
+
+#### **Client Caching**
+- Clients may **cache service locations** for performance.
+- However, cached info can become **stale** — so eventual **inconsistencies must be handled**.
+---
+
+#### **Highly Available Registries**
+- Typically implemented as a **cluster of registry servers** using **replication protocols** to stay consistent and fault-tolerant.
+---
+
+#### **Built-in Service Discovery in Clusters**
+- In platforms like **Azure Kubernetes Service (AKS)**:
+  - Service registration and discovery is **automated**.
+  - A **proxy on each node** acts as a **server-side discovery router**.
+
