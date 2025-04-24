@@ -854,3 +854,85 @@ Its **core features** generally fall into three main categories:
 - If a command comes from a **client app**, HTTP is okay.
 - Between **microservices**, prefer **message-based communication** for commands.
 
+#### **Multiple-Receivers Message-Based Communication (Publish/Subscribe)**
+
+###### **Concept**
+- A **sender** publishes an **event**.
+- **Multiple subscribers** (microservices or external apps) listen and respond.
+- This enables **loose coupling** and supports the **open/closed principle**: new subscribers can be added **without modifying the sender**.
+
+---
+
+##### **Asynchronous Event-Driven Communication**
+
+![alt text](async_event_com.png)
+
+###### **Workflow**
+- A microservice **publishes an integration event** when something significant occurs in its domain (e.g., product price update).
+- Other microservices **subscribe** to the event and act upon it **asynchronously**.
+- This may lead to **a chain of updates** and further published events.
+
+---
+
+###### **Key Benefits**
+- Enables **eventual consistency** across services.
+- Ideal for **distributed business processes** that span microservices.
+- Resembles Domain-Driven Design (DDD) communication between **Bounded Contexts** or **CQRS** pattern syncing between **write and read databases**.
+
+---
+
+###### **Best Practices**
+- **Use an event bus** abstraction with APIs to publish and subscribe to events.
+- **Don’t simulate this behavior** with SignalR or polling — make eventual consistency **explicit** to end users.
+- **Business logic must accept** that changes may not be immediately visible.
+- Example technologies:  
+  - **Low-level:** RabbitMQ, Azure Service Bus  
+  - **Higher-level:** NServiceBus, MassTransit, Brighter
+
+---
+
+###### **Protocols**
+- **AMQP** is commonly used for reliable, queued communication.
+- **Topics** (e.g., Azure Service Bus Topics) allow multiple subscribers for a single event.
+
+Here’s a clear summary of the **Resiliently Publishing to the Event Bus** section:
+
+---
+
+##### **Resilient Event Publishing in Event-Driven Microservices**
+
+###### **Core Challenge**
+Ensuring **atomic state updates** and **reliable event publication** in a microservice — especially in the face of failures — is complex because you need both:
+- Database update (state change)
+- Event published to the event bus  
+...**together**, without risking data loss or inconsistency.
+
+---
+
+###### **Approaches to Ensure Reliability**
+
+1. **Transactional Queues (e.g., MSMQ with DTC)**
+   - Ensures atomic operations across database and queue using distributed transactions.
+   - **Legacy solution**; not widely recommended today.
+
+2. **Transaction Log Mining**
+   - Extracts event data from the database transaction log after commit.
+   - Useful but **complex to implement and maintain**.
+
+3. **Event Sourcing Pattern**
+   - All state changes are stored as **events**.
+   - The **event store** itself becomes the source for publishing.
+   - High consistency, but requires a **different architecture model**.
+
+4. **Outbox Pattern (Recommended)**
+   - Store events in a dedicated **Outbox table** within the same database transaction.
+   - A separate **event publisher service** reads from the Outbox and sends events to the event bus.
+   - Ensures **atomic state change + safe event publishing**.
+   - Often used with **polling + deduplication**.
+
+---
+
+###### **Other Considerations**
+- **Message Idempotence**: Handle duplicate event deliveries safely.
+- **Message Deduplication**: Ensure receivers process a message only once.
+- These will be discussed in-depth later in the guide.
