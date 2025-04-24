@@ -744,3 +744,36 @@ Its **core features** generally fall into three main categories:
 ##### **Protocol Flexibility**
 - Use **any protocol** (e.g., message bus, event broker, or HTTP polling) for asynchronous data propagation.
 - **The protocol is secondary** — what's critical is **eliminating synchronous dependencies**.
+
+#### Communication styles:
+##### Request/response communication with HTTP and REST
+
+![alt text](requet_resp_com.png)
+
+###### **How It Works**
+- A **client sends a request**, the **service processes it**, and **sends a response** back.
+- This is most commonly used for **real-time UI queries** in client applications.
+
+---
+
+###### **When to Use It**
+- Ideal for **quick responses** (usually under a few seconds).
+- Use **asynchronous messaging** instead if:
+  - The **response takes longer**.
+  - You want to **decouple services** more effectively.
+
+---
+
+###### **REST: The Standard for HTTP Communication**
+- **REST** (Representational State Transfer) is an architectural style built on **HTTP verbs**:
+  - `GET`, `POST`, `PUT`, `DELETE`, etc.
+- Widely adopted in microservices for creating **Web APIs**.
+
+---
+
+###### **Benefits of REST/HTTP**
+- Easy to use and implement with frameworks like **ASP.NET Core Web API**.
+- Can be enhanced with tools like **Swagger/OpenAPI** to:
+  - Generate **client stubs**.
+  - Enable **service discovery and documentation** automatically.
+
