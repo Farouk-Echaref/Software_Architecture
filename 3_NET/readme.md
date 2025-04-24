@@ -797,3 +797,60 @@ Its **core features** generally fall into three main categories:
 
 ##### **Use Case Example**
 - A backend service pushes **live score updates** of a sports match to **all connected web clients** instantly.
+
+### Asynchronous message-based communication:
+
+##### **Purpose**
+- Used to **propagate changes across multiple microservices and domains**.
+- Ensures **eventual consistency** between services with different models and Bounded Contexts (e.g., `User`, `Customer`, `Product`, etc.).
+---
+
+##### **How It Works**
+- Microservices **send and receive messages** asynchronously (not expecting an immediate reply).
+- Responses, if any, come as **separate messages**.
+- A message includes:
+  - **Header**: metadata (e.g., ID, auth info)
+  - **Body**: actual data payload
+---
+
+##### **Infrastructure**
+- Uses **lightweight message brokers**:
+  - Examples: **RabbitMQ**, **Azure Service Bus**
+  - Contrast: avoids heavy SOA-style brokers/orchestrators
+- Brokers act as **"dumb pipes"**, with smart logic living in the microservices (endpoints).
+---
+
+##### **Design Rule**
+- Use **asynchronous messaging between internal services**
+- Use **synchronous (e.g., HTTP)** only between **clients** and **front-end services** (like API Gateways)
+---
+
+##### **Types of Async Messaging**
+1. **Single Receiver**
+2. **Multiple Receivers**
+
+#### **Single-Receiver Message-Based Communication**
+
+![alt text](single_receiver_com.png)
+
+##### **Definition**
+- **Point-to-point** asynchronous messaging.
+- A message is delivered to **only one receiver** and is processed **once**.
+---
+
+##### **Special Considerations**
+- In cloud systems, messages may be **retried** (e.g., due to failures).
+- Services must implement **idempotent operations** to safely handle potential **duplicate messages**.
+---
+
+##### **When to Use**
+- Ideal for **sending asynchronous commands** from one microservice to another.
+- Provides **better scalability** than synchronous HTTP calls.
+- Especially useful in **message-driven business processes**.
+---
+
+##### **Best Practice**
+- **Do not mix** asynchronous messaging and synchronous HTTP for the same operation.
+- If a command comes from a **client app**, HTTP is okay.
+- Between **microservices**, prefer **message-based communication** for commands.
+
