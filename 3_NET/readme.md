@@ -1161,3 +1161,11 @@ Ensuring **atomic state updates** and **reliable event publication** in a micros
 - Use **orchestrators** (like Kubernetes, Azure Service Fabric, etc.) to:
   - Handle service failures, restarts, deployments.
   - Collect and monitor logs and health metrics.
+
+### Orchestrate microservices and multi-container applications for high scalability and availability
+
+
+
+## Chap4: Development process for Docker-based applications
+
+## Chap5: Designing and Developing Multi-Container and Microservice-Based .NET Applications
