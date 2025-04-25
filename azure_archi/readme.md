@@ -328,3 +328,85 @@ Location: /api/orders/12345
 - **Optimization**: Use `HEAD` to pre-check resource size and capabilities.  
 
 *Improve performance and reliability for large files by enabling chunked transfers and client-controlled retrieval.*
+
+#### Implement HATEOAS (Hypertext as the Engine of Application State)
+##### **Explanation: What is HATEOAS (Hypertext as the Engine of Application State)?**
+
+###### **What is the problem it's solving?**
+In RESTful APIs, clients should not have to **hardcode or guess** the structure of API endpoints or understand complex URI patterns. Instead, the server should guide the client dynamically by providing links to related resources and available actions.
+
+---
+
+###### **HATEOAS Concept**
+HATEOAS is a key constraint of REST, where:
+
+- Every response from the server includes **hyperlinks** (i.e., "hypertext") that:
+  - Link to related resources.
+  - Indicate possible operations (GET, PUT, DELETE, etc.).
+  - Describe what kind of content types can be sent or received.
+
+- This allows the **client to discover** and interact with the API dynamically, **without prior knowledge of its URI structure**.
+
+> The system behaves like a finite state machine — each response tells the client what to do next.
+
+---
+
+###### **Example:**
+Here’s what a HATEOAS response might look like:
+
+```json
+{
+  "orderID": 3,
+  "productID": 2,
+  "quantity": 4,
+  "orderValue": 16.60,
+  "links": [
+    {
+      "rel": "customer",
+      "href": "https://api.contoso.com/customers/3",
+      "action": "GET",
+      "types": ["application/json"]
+    },
+    {
+      "rel": "self",
+      "href": "https://api.contoso.com/orders/3",
+      "action": "DELETE",
+      "types": []
+    }
+  ]
+}
+```
+
+###### What this tells us:
+- We’re looking at order **#3**.
+- To view the customer who made this order: follow the `"customer"` link and perform a `GET`.
+- To delete this order: follow the `"self"` link with a `DELETE` request.
+
+So, the client doesn't need to "know" how to build the customer or order URL—it’s **told** what the next actions are.
+
+---
+
+###### **Key Components in HATEOAS:**
+- `rel`: Relationship type (e.g., "self", "customer").
+- `href`: The URI to the resource.
+- `action`: HTTP method (GET, PUT, etc.).
+- `types`: MIME types accepted or returned.
+
+---
+
+###### **Important Notes:**
+- There’s **no universal standard** for implementing HATEOAS—each API can define its own format.
+- HATEOAS promotes **loose coupling**, making APIs more flexible and self-explanatory.
+
+---
+
+###### **Summary:**
+
+| Concept                      | Description |
+|-----------------------------|-------------|
+| **HATEOAS**                 | A REST constraint where responses include hypermedia links guiding the client on possible next actions. |
+| **Goal**                     | Let clients discover related resources and operations **dynamically** through hyperlinks in responses. |
+| **Structure**                | Each link in a response includes `rel`, `href`, `action`, and `types`. |
+| **Benefit**                  | Clients don't need prior knowledge of API structure, making systems easier to evolve. |
+| **State-dependent links**    | The set of available links can **change depending on the resource's state**, enabling dynamic workflows. |
+
