@@ -410,3 +410,41 @@ So, the client doesn't need to "know" how to build the customer or order URL—i
 | **Benefit**                  | Clients don't need prior knowledge of API structure, making systems easier to evolve. |
 | **State-dependent links**    | The set of available links can **change depending on the resource's state**, enabling dynamic workflows. |
 
+#### Implement versioning:
+
+APIs evolve; versioning ensures **backward compatibility** for existing clients while enabling **new features** for newer ones.
+
+##### No Versioning
+- Works for small/internal APIs.
+- Adding fields is safe; removing/renaming fields breaks clients.
+- Simple, but risky for long-term changes.
+
+##### URI Versioning
+- Embed version in URI: `/v1/customers/3`
+- Easy to route.
+- Breaks REST purity (same resource, different URI).
+- Makes HATEOAS harder to maintain.
+
+##### Query String Versioning
+- Append version: `/customers/3?version=2`
+- Keeps URI consistent.
+- Affects caching behavior in some proxies/browsers.
+- Also complicates HATEOAS links.
+
+##### Header Versioning
+- Use custom headers: `Custom-Header: api-version=2`
+- Keeps URI clean.
+- Requires clients to set headers.
+- Harder to cache, more complex logic.
+
+##### Media Type Versioning
+- Use `Accept` header: `Accept: application/vnd.contoso.v1+json`
+- Most RESTful.
+- Works well with HATEOAS.
+- Complex to implement and parse.
+- Least cache-friendly.
+
+##### Key Considerations
+- Choose a strategy that fits your API’s clients and scale.
+- Balance between purity (media type) and simplicity (URI).
+- Always prioritize **non-breaking changes** for existing consumers.
