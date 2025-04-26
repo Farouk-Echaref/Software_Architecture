@@ -666,3 +666,132 @@ Handles cancellation by returning HTTP 409 (Conflict) if the operation is cancel
 - **Older browsers and proxies** may refuse to cache URLs that have a query string (`?param=value`).  
   (This is less of an issue for modern custom clients.)
 
+##### Provide ETags to optimize query processing:
+
+When a client retrieves an object, the server response can include an **ETag**, an opaque string identifying the version of the resource. Each time a resource changes, the ETag also changes. Clients should cache the ETag with the resource.
+
+Example of adding ETag in C#:
+
+```csharp
+public class OrdersController : ApiController
+{
+    public IHttpActionResult FindOrderByID(int id)
+    {
+        Order order = ...;
+        var hashedOrder = order.GetHashCode();
+        string hashedOrderEtag = $"\"{hashedOrder}\"";
+        var eTag = new EntityTagHeaderValue(hashedOrderEtag);
+
+        OkResultWithCaching<Order> response = new OkResultWithCaching<Order>(order, this)
+        {
+            ETag = eTag
+        };
+        return response;
+    }
+}
+```
+
+Example HTTP response:
+
+```
+HTTP/1.1 200 OK
+Cache-Control: max-age=600, private
+Content-Type: text/json; charset=utf-8
+ETag: "2147483648"
+Content-Length: ...
+{"orderID":2,"productID":4,"quantity":2,"orderValue":10.00}
+```
+
+Tip:  
+For security, avoid caching sensitive or HTTPS data.
+
+###### Conditional GET requests using ETag
+
+The client can send the cached ETag with an `If-None-Match` header to check if the resource has changed.
+
+Example HTTP GET with `If-None-Match`:
+
+```
+GET https://adventure-works.com/orders/2 HTTP/1.1
+If-None-Match: "2147483648"
+```
+
+Server behavior:
+- If ETag matches → return `304 Not Modified` with no body.
+- If ETag does not match → return `200 OK` with updated resource.
+- If resource is missing → return `404 Not Found`.
+
+If `Cache-Control: no-store` is present, the client must not cache, regardless of the status code.
+
+###### C# Example supporting `If-None-Match`
+
+```csharp
+public class OrdersController : ApiController
+{
+    [Route("api/orders/{id:int:min(0)}")]
+    [HttpGet]
+    public IHttpActionResult FindOrderByID(int id)
+    {
+        try
+        {
+            Order order = ...;
+            if (order == null)
+                return NotFound();
+
+            var hashedOrder = order.GetHashCode();
+            string hashedOrderEtag = $"\"{hashedOrder}\"";
+            var cacheControlHeader = new CacheControlHeaderValue { Public = true, MaxAge = new TimeSpan(0, 10, 0) };
+            var eTag = new EntityTagHeaderValue(hashedOrderEtag);
+
+            var nonMatchEtags = Request.Headers.IfNoneMatch;
+
+            if (nonMatchEtags.Count > 0 && String.CompareOrdinal(nonMatchEtags.First().Tag, hashedOrderEtag) == 0)
+            {
+                return new EmptyResultWithCaching()
+                {
+                    StatusCode = HttpStatusCode.NotModified,
+                    CacheControlHeader = cacheControlHeader,
+                    ETag = eTag
+                };
+            }
+            else
+            {
+                return new OkResultWithCaching<Order>(order, this)
+                {
+                    CacheControlHeader = cacheControlHeader,
+                    ETag = eTag
+                };
+            }
+        }
+        catch
+        {
+            return InternalServerError();
+        }
+    }
+}
+```
+
+###### Helper class for 304 Not Modified responses
+
+```csharp
+public class EmptyResultWithCaching : IHttpActionResult
+{
+    public CacheControlHeaderValue CacheControlHeader { get; set; }
+    public EntityTagHeaderValue ETag { get; set; }
+    public HttpStatusCode StatusCode { get; set; }
+    public Uri Location { get; set; }
+
+    public async Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken)
+    {
+        HttpResponseMessage response = new HttpResponseMessage(StatusCode);
+        response.Headers.CacheControl = this.CacheControlHeader;
+        response.Headers.ETag = this.ETag;
+        response.Headers.Location = this.Location;
+        return response;
+    }
+}
+```
+
+Tip:  
+If the ETag can be computed without retrieving the data (e.g., based on a version number or a known checksum), this can avoid fetching large or remote data unnecessarily.
+
