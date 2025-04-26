@@ -464,3 +464,30 @@ A multitenant web API serves multiple tenants (organizations or groups) through 
 - Influences API gateway and load balancer configurations.
 - Requires careful caching strategies to prevent data leakage across tenants.
 
+#### Enabling distributed tracing and trace context in APIs
+
+### Web API Implementation:
+
+#### Processing Requests 
+
+**Idempotency**:  
+GET, PUT, DELETE, HEAD, and PATCH should be idempotent—repeating the same request should not change the system state beyond the first request.
+
+**POST Operations**:  
+POST should only affect the new resource (and directly linked resources), without causing unrelated side effects.
+
+**Avoid Chatty APIs**:  
+Minimize small, repetitive POST, PUT, and DELETE operations. Support batch operations on collections to reduce network and compute overhead.
+
+**Follow HTTP Specification**:  
+Return proper status codes, headers, and formatted response bodies. Example: POST must return 201 Created and include the new resource’s URI.
+
+**Content Negotiation**:  
+Support multiple response formats (like JSON, XML) based on the client's `Accept` header. Default to a sensible format (e.g., JSON) if none is specified.
+
+**HATEOAS Support**:  
+Include navigational links in responses so clients can discover related resources and actions dynamically. Each link should describe:
+- Relation (`rel`)
+- URI (`href`)
+- HTTP action (`action`)
+- Supported content types (`types`)
