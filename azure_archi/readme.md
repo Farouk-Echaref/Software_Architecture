@@ -448,3 +448,19 @@ APIs evolve; versioning ensures **backward compatibility** for existing clients 
 - Choose a strategy that fits your API’s clients and scale.
 - Balance between purity (media type) and simplicity (URI).
 - Always prioritize **non-breaking changes** for existing consumers.
+
+#### Multitenant web APIs:
+
+A multitenant web API serves multiple tenants (organizations or groups) through a single API infrastructure. Multitenancy impacts API design, requiring clear tenant identification and ensuring isolation, scalability, and customization.
+
+**Tenant identification methods**:
+- **Subdomains or custom domains**: Routing requests through tenant-specific domains (e.g., `tenant1.api.com`). Requires proper DNS setup.
+- **HTTP headers**: Passing tenant information via headers (e.g., `X-Tenant-ID`). Simplifies API paths but complicates caching and requires Layer 7 gateways.
+- **JWT tokens**: Embedding tenant ID in token claims for secure, centralized authentication.
+- **URI paths**: Including tenant ID in the URL (e.g., `/tenants/tenant1/orders/3`). Straightforward but less RESTful.
+
+**Design considerations**:
+- Impacts endpoint structure, request handling, authentication, and authorization.
+- Influences API gateway and load balancer configurations.
+- Requires careful caching strategies to prevent data leakage across tenants.
+
