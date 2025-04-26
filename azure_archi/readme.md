@@ -491,3 +491,71 @@ Include navigational links in responses so clients can discover related resource
 - URI (`href`)
 - HTTP action (`action`)
 - Supported content types (`types`)
+
+#### Handling Exceptions 
+
+**Capture and return meaningful errors**:  
+Don't let exceptions crash the system. Catch them and return proper HTTP responses with helpful error messages (not just generic 500 errors).
+
+**Use appropriate status codes**:  
+- 400 (Bad Request): when the request is invalid.  
+- 404 (Not Found): when a resource doesn’t exist.  
+- 409 (Conflict): for conflicts like constraint violations.  
+- 500 (Internal Server Error): for unhandled/unexpected errors.
+
+**Example practice**:  
+Catch errors inside your controller methods and respond properly based on the situation (example given with `DeleteCustomer` endpoint).
+
+**Security tip**:  
+Don't expose sensitive server/internal information in error responses (protect against attackers).
+
+**Authentication and Authorization**:
+- 401 (Unauthorized): when authentication fails (handled often by the server itself).  
+- 403 (Forbidden): when a user is authenticated but not allowed to access a resource.
+
+**Consistency and logging**:  
+Implement **global exception handling** and **error logging** — log full error details privately, not exposed to clients.
+
+**Client vs Server errors**:  
+Respect the 4xx (client error) vs 5xx (server error) distinction when setting response codes.
+
+```C#
+[HttpDelete]
+[Route("customers/{id:int}")]
+public IHttpActionResult DeleteCustomer(int id)
+{
+    try
+    {
+        // Find the customer to be deleted in the repository
+        var customerToDelete = repository.GetCustomer(id);
+
+        // If there is no such customer, return an error response
+        // with status code 404 (Not Found)
+        if (customerToDelete == null)
+        {
+            return NotFound();
+        }
+
+        // Remove the customer from the repository
+        // The DeleteCustomer method returns true if the customer
+        // was successfully deleted
+        if (repository.DeleteCustomer(id))
+        {
+            // Return a response message with status code 204 (No Content)
+            // To indicate that the operation was successful
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+        else
+        {
+            // Otherwise return a 400 (Bad Request) error response
+            return BadRequest(Strings.CustomerNotDeleted);
+        }
+    }
+    catch
+    {
+        // If an uncaught exception occurs, return an error response
+        // with status code 500 (Internal Server Error)
+        return InternalServerError();
+    }
+}
+```
