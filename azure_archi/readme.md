@@ -795,3 +795,103 @@ public class EmptyResultWithCaching : IHttpActionResult
 Tip:  
 If the ETag can be computed without retrieving the data (e.g., based on a version number or a known checksum), this can avoid fetching large or remote data unnecessarily.
 
+##### Use ETags to Support Optimistic Concurrency
+
+- This section explains how **ETags** can be used to support **optimistic concurrency control**.  
+When a client updates (PUT) or deletes (DELETE) a resource, it should include the ETag in an `If-Match` header.  
+The API compares the provided ETag with the current resource’s ETag to decide:
+- If they match → perform the operation (update or delete).
+- If they don’t → return **412 Precondition Failed** (someone else modified the resource).
+- If the resource is missing → return **404 Not Found**.
+
+This ensures that **updates don't overwrite** changes made by others.  
+**Tip**: Always include `If-Match` to avoid lost updates.
+
+- ETags enable optimistic concurrency by ensuring updates only happen if the resource has not changed.
+
+###### Process Overview
+- Client sends a `PUT` or `DELETE` request with an `If-Match` header containing the cached ETag.
+- Server compares the current ETag of the resource with the provided one.
+- Depending on the comparison:
+  - **Match**: Perform the update or delete, return **204 No Content** with updated ETag and Location header.
+  - **Mismatch**: Return **412 Precondition Failed** (resource has changed).
+  - **Resource missing**: Return **404 Not Found**.
+
+###### Example PUT Request
+```http
+PUT https://adventure-works.com/orders/1 HTTP/1.1
+If-Match: "2282343857"
+Content-Type: application/x-www-form-urlencoded
+Content-Length: ...
+productID=3&quantity=5&orderValue=250
+```
+
+###### How the Web API Should Handle It
+- Fetch the resource (e.g., order 1).
+- Compare the ETag with the value in `If-Match`.
+- Perform update or respond with 412/404 accordingly.
+
+###### Example Code (C#)
+```csharp
+public class OrdersController : ApiController
+{
+    [HttpPut]
+    [Route("api/orders/{id:int}")]
+    public IHttpActionResult UpdateExistingOrder(int id, DTOOrder order)
+    {
+        try
+        {
+            var baseUri = Constants.GetUriFromConfig();
+            var orderToUpdate = this.ordersRepository.GetOrder(id);
+            if (orderToUpdate == null)
+                return NotFound();
+
+            var hashedOrder = orderToUpdate.GetHashCode();
+            string hashedOrderEtag = $"\"{hashedOrder}\"";
+            var matchEtags = Request.Headers.IfMatch;
+
+            if ((matchEtags.Count > 0 &&
+                 String.CompareOrdinal(matchEtags.First().Tag, hashedOrderEtag) == 0) ||
+                matchEtags.Count == 0)
+            {
+                orderToUpdate.OrderValue = order.OrderValue;
+                orderToUpdate.ProductID = order.ProductID;
+                orderToUpdate.Quantity = order.Quantity;
+
+                // Save order ...
+
+                var cacheControlHeader = new CacheControlHeaderValue()
+                {
+                    Private = true,
+                    MaxAge = new TimeSpan(0, 10, 0)
+                };
+
+                hashedOrder = order.GetHashCode();
+                hashedOrderEtag = $"\"{hashedOrder}\"";
+                var eTag = new EntityTagHeaderValue(hashedOrderEtag);
+
+                var location = new Uri($"{baseUri}/{Constants.ORDERS}/{id}");
+
+                return new EmptyResultWithCaching()
+                {
+                    StatusCode = HttpStatusCode.NoContent,
+                    CacheControlHeader = cacheControlHeader,
+                    ETag = eTag,
+                    Location = location
+                };
+            }
+
+            return StatusCode(HttpStatusCode.PreconditionFailed);
+        }
+        catch
+        {
+            return InternalServerError();
+        }
+    }
+}
+```
+
+###### Tip
+- If `If-Match` is **omitted**, the server will always perform the update, risking overwriting another user’s change.
+- **Always include** `If-Match` to prevent lost updates.
+
