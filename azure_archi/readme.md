@@ -559,3 +559,110 @@ public IHttpActionResult DeleteCustomer(int id)
     }
 }
 ```
+
+#### Optimizing client-side data access:
+
+**Network is a bottleneck**:  
+Minimize traffic between client and server to improve performance.
+
+##### Support Client-Side Caching
+
+**HTTP 1.1 caching** uses the `Cache-Control` header to tell clients and proxies how to cache responses.
+
+Example HTTP request and response:
+
+```http
+GET https://adventure-works.com/orders/2 HTTP/1.1
+```
+
+```http
+HTTP/1.1 200 OK
+Cache-Control: max-age=600, private
+Content-Type: text/json; charset=utf-8
+Content-Length: ...
+{"orderID":2,"productID":4,"quantity":2,"orderValue":10.00}
+```
+
+**Meaning**:
+- `max-age=600`: Cache valid for 600 seconds.
+- `private`: Only the client (not shared caches) can store it.
+
+Other options:
+- `public`: Allows shared caching (e.g., proxy caches).
+- `no-store`: Prohibits caching entirely.
+
+---
+
+###### Example: Setting Cache-Control in a C# Web API
+
+```csharp
+public class OrdersController : ApiController
+{
+    [Route("api/orders/{id:int:min(0)}")]
+    [HttpGet]
+    public IHttpActionResult FindOrderByID(int id)
+    {
+        Order order = ...; // Fetch order
+
+        var cacheControlHeader = new CacheControlHeaderValue
+        {
+            Private = true,
+            MaxAge = new TimeSpan(0, 10, 0) // 10 minutes
+        };
+
+        OkResultWithCaching<Order> response = new OkResultWithCaching<Order>(order, this)
+        {
+            CacheControlHeader = cacheControlHeader
+        };
+        return response;
+    }
+}
+```
+
+Here, the controller uses a **custom `IHttpActionResult`** to attach cache headers.
+
+---
+
+###### Custom IHttpActionResult Example (`OkResultWithCaching`)
+
+```csharp
+public class OkResultWithCaching<T> : OkNegotiatedContentResult<T>
+{
+    public CacheControlHeaderValue CacheControlHeader { get; set; }
+    public EntityTagHeaderValue ETag { get; set; }
+
+    public OkResultWithCaching(T content, ApiController controller)
+        : base(content, controller) { }
+
+    public override async Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken)
+    {
+        HttpResponseMessage response = await base.ExecuteAsync(cancellationToken);
+        response.Headers.CacheControl = this.CacheControlHeader;
+        response.Headers.ETag = ETag;
+        return response;
+    }
+}
+```
+
+Handles setting:
+- `Cache-Control`
+- `ETag` headers
+
+Handles cancellation by returning HTTP 409 (Conflict) if the operation is canceled.
+
+---
+
+###### Important Notes
+
+- `no-cache` **doesn't** mean "don't cache" — it means "cache but always validate before using."
+- `max-age` is only a *hint*, not a guarantee — data might still change within that time.
+- Proper cache management can **significantly** save bandwidth and improve performance.
+
+---
+
+###### Browser and Proxy Behaviors
+
+- **Modern browsers** respect cache headers (even with query strings).
+- **Older browsers and proxies** may refuse to cache URLs that have a query string (`?param=value`).  
+  (This is less of an issue for modern custom clients.)
+
