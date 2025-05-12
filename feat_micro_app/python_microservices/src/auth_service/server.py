@@ -87,5 +87,5 @@ def createJWT(username, secret, authz):
 
 # expose the server to be called from elsewhere
 if __name__ == "__main__":
-    # can be better, map the ip of the docker container
+    # this works if the service can belong to multiple networks, but can be better, map the ip of the docker container
     server.run(host="0.0.0.0", port=5000)
