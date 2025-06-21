@@ -17,6 +17,8 @@
 ```bash
 brew services start mysql
 mysql -uroot
+# command for setting up the db from a sql file 
+mysql -uroot < init.sql 
 ```
 
 ## Auth Service:
