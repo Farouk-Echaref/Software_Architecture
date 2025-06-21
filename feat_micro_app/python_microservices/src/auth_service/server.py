@@ -35,6 +35,7 @@ def login(): # function to handle login
 
     # at least one user was found
     if res > 0:
+        # check what res has as a result of the query, why use fetchone() of cursor to make a new query? 
         user_row = cur.fetchone()
         email = user_row[0]
         password = user_row[1]
