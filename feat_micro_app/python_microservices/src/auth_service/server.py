@@ -48,6 +48,7 @@ def login(): # function to handle login
         return "Invalid Credentials", 401
 
 
+# implement some kind of redirection to login 
 @server.route("/validate", methods=["POST"])
 def validate():
 
@@ -67,6 +68,7 @@ def validate():
             encoded_jwt, os.environ.get("JWT_SECRET"), algorithms=["HS256"]
         )
     except:
+        # better handling of http status, some some builting mechaninsm not return strings, also specify exception type
         return "Not Authorized", 403
     
     return decoded, 200
