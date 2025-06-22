@@ -29,13 +29,14 @@ def login(): # function to handle login
     # need to make a query to the mysql db using cursor object
     # think of the cursor like a tmp pointer for navigating and interacting with the database.
     cur = mysql.connection.cursor()
-    res = cur.execute(
-        "SELECT email, password FROM user WHERE email=%s", (auth.username,)
-    )
+    # Execute the SQL query once — this sends the request to the database
+    # and stores the resulting rows in the cursor's internal buffer.
+    res = cur.execute("SELECT email, password FROM user WHERE email=%s", (auth.username,))
 
     # at least one user was found
     if res > 0:
-        # check what res has as a result of the query, why use fetchone() of cursor to make a new query? 
+        # Retrieve the first row from the previously stored result.
+        # This does NOT re-run the query — it simply reads from the buffer.
         user_row = cur.fetchone()
         email = user_row[0]
         password = user_row[1]
