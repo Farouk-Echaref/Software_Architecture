@@ -1,3 +1,4 @@
+# use a python image, instead of an os image and then install python depends later
 FROM python:3.10-slim-bullseye
 
 RUN sed -i 's|http://deb.debian.org|http://ftp.fr.debian.org|g' /etc/apt/sources.list \
@@ -8,6 +9,8 @@ RUN sed -i 's|http://deb.debian.org|http://ftp.fr.debian.org|g' /etc/apt/sources
 
 
 WORKDIR /app
+
+# focus on the build cache layers
 COPY ./requirements.txt /app
 RUN pip install --no-cache-dir --requirement /app/requirements.txt
 COPY . /app
